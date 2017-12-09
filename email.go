@@ -2,8 +2,8 @@ package main
 
 import (
 	"gopkg.in/mailgun/mailgun-go.v1"
-	"fmt"
 	"os"
+	"log"
 )
 
 func SendEmail(from string, to string) error {
@@ -22,6 +22,6 @@ func SendEmail(from string, to string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("ID: %s Resp: %s\n", id, resp)
+	log.Printf("ID: %s Resp: %s\n", id, resp)
 	return err
 }
