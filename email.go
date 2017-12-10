@@ -2,22 +2,35 @@ package main
 
 import (
 	"gopkg.in/mailgun/mailgun-go.v1"
-	"os"
 	"log"
+	"os"
 )
 
-func SendEmail(from string, to string) error {
+type MailService struct {
+	Service  mailgun.Mailgun
+	TestMode bool
+}
+
+func NewMailService() *MailService {
 	domain := os.Getenv("DOMAIN")
 	apiKey := os.Getenv("API_KEY")
 	publicApiKey := os.Getenv("PUBLIC_API_KEY")
-
 	mg := mailgun.NewMailgun(domain, apiKey, publicApiKey)
-	message := mg.NewMessage(
+	testMode := os.Getenv("TEST_MODE")
+	service := &MailService{Service: mg, TestMode: "" != testMode}
+	return service
+}
+
+func (ms MailService) SendEmail(from string, to string, subject string, text string) error {
+	message := ms.Service.NewMessage(
 		from,
-		"Fancy subject!",
-		"Hello from Mailgun Go!",
+		subject,
+		text,
 		to)
-	resp, id, err := mg.Send(message)
+	if ms.TestMode {
+		message.EnableTestMode()
+	}
+	resp, id, err := ms.Service.Send(message)
 
 	if err != nil {
 		return err

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"os"
+	"testing"
 )
 
 var FromEmail string
@@ -14,7 +14,8 @@ func TestInit(t *testing.T) {
 }
 
 func TestSendsEmail(t *testing.T) {
-	err := SendEmail(FromEmail, ToEmail)
+	service := NewMailService()
+	err := service.SendEmail(FromEmail, ToEmail, "Test Subject", "This is a really cool message")
 	if err != nil {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()

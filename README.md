@@ -8,3 +8,7 @@ export DOMAIN="mailgun domain"
 export API_KEY="mailgun api key"
 export PUBLIC_API_KEY="mailgun api public key"
 ```
+Enable test mode
+```
+export TEST_MODE=1
+```
