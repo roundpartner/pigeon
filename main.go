@@ -1,16 +1,15 @@
 package main
 
 import (
+	"flag"
+	"github.com/artyom/autoflags"
 	"log"
 	"os"
-	"github.com/artyom/autoflags"
-	"flag"
 )
 
 var ServerConfig = struct {
 	Port int `flag:"port,port number to listen on"`
 }{Port: 3411}
-
 
 func main() {
 	autoflags.Define(&ServerConfig)

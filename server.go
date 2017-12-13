@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"net/http"
 	"fmt"
+	"github.com/gorilla/mux"
+	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"log"
 )
 
 func ListenAndServe(port int) {
