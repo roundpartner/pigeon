@@ -12,3 +12,14 @@ Enable test mode
 ```
 export TEST_MODE=1
 ```
+
+## Send an email
+```bash
+curl -X POST http://localhost:3411/email \
+-d "{
+        \"to\":\"receipient@mailinator.com\",
+        \"from\":\"sender@mailinator.com\",
+        \"subject\":\"Cool Subject\",
+        \"text\":\"Interesting Message\"
+    }"
+```

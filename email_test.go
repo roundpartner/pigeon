@@ -15,9 +15,22 @@ func TestInit(t *testing.T) {
 
 func TestSendsEmail(t *testing.T) {
 	service := NewMailService()
-	err := service.SendEmail(FromEmail, ToEmail, "Test Subject", "This is a really cool message")
+	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
+	err := service.SendEmail(&message)
 	if err != nil {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
 	}
+}
+
+func TestQueuesEmail(t *testing.T) {
+	service := NewMailService()
+
+	if nil == service.Messages {
+		t.Error("Message queue has not been set")
+		t.FailNow()
+	}
+
+	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
+	service.QueueEmail(&message)
 }
