@@ -1,0 +1,11 @@
+{
+    "subject": "The subject is test",
+    "text": {
+        "name": "test",
+        "text": "Hello {{ .name }}. We heard that your favourite colour is {{ .colour }}."
+    },
+    "html": {
+        "name": "test",
+        "text": "Hello {{ .name }}. We heard that your favourite colour is {{ .colour }}."
+    }
+}

@@ -41,3 +41,24 @@ func TestAssembleFromMessage(t *testing.T) {
 		t.Errorf("Text did not match: %s", text)
 	}
 }
+
+func TestImportEmailTemplate(t *testing.T) {
+	tm := NewTemplateManager()
+	tpl, err := tm.ImportTemplate("test")
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+	if tpl.Subject == "" {
+		t.Errorf("Subject not set")
+		t.Fail()
+	}
+	if tpl.Text == nil || tpl.Text.Name == "" {
+		t.Errorf("Text template not set")
+		t.Fail()
+	}
+	if tpl.Html == nil || tpl.Html.Name == "" {
+		t.Errorf("Html template not set")
+		t.Fail()
+	}
+}

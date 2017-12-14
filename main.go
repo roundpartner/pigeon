@@ -9,7 +9,9 @@ import (
 
 var ServerConfig = struct {
 	Port int `flag:"port,port number to listen on"`
-}{Port: 3411}
+}{
+	Port: 3411,
+}
 
 func main() {
 	autoflags.Define(&ServerConfig)

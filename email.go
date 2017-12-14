@@ -22,6 +22,7 @@ type MailService struct {
 	Service  mailgun.Mailgun
 	TestMode bool
 	Messages chan *Message
+	templateManager *TemplateManager
 }
 
 func NewMailService() *MailService {
@@ -30,7 +31,7 @@ func NewMailService() *MailService {
 	publicApiKey := os.Getenv("PUBLIC_API_KEY")
 	mg := mailgun.NewMailgun(domain, apiKey, publicApiKey)
 	testMode := os.Getenv("TEST_MODE")
-	service := &MailService{Service: mg, TestMode: "" != testMode}
+	service := &MailService{Service: mg, TestMode: "" != testMode, templateManager: NewTemplateManager()}
 	service.run()
 	return service
 }
@@ -70,20 +71,40 @@ func (ms *MailService) SendEmail(msg *Message) error {
 }
 
 func (ms *MailService) SendTemplatedEmail(msg *Message) error {
-
-	tpl := &Template{Name: "simple", Text: msg.Template}
-	text, err := AssembleTemplate(tpl, msg)
+	emailTpl, err := ms.templateManager.ImportTemplate(msg.Template)
+	if err != nil {
+		log.Printf("Error: %s\n", err.Error())
+		return err
+	}
+	text, err := AssembleTemplate(emailTpl.Text, msg)
 	if err != nil {
 		log.Printf("Error: %s\n", err.Error())
 		return err
 	}
 	msg.Text = text
 
+	if nil != emailTpl.Html {
+		html, err := AssembleTemplate(emailTpl.Html, msg)
+		if err != nil {
+			log.Printf("Error: %s\n", err.Error())
+			return err
+		}
+		msg.Html = html
+	}
+
 	message := ms.Service.NewMessage(
 		msg.From,
 		msg.Subject,
 		msg.Text,
 		msg.To)
+
+	if "" != msg.Html {
+		message.SetHtml(msg.Html)
+	}
+	if "" != msg.ReplyTo {
+		message.SetReplyTo(msg.ReplyTo)
+	}
+	message.SetTracking(msg.Track)
 
 	return ms.send(message)
 }

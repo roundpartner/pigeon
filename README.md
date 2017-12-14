@@ -7,6 +7,7 @@ Provides end points for sending communication such as Email
 export DOMAIN="mailgun domain"
 export API_KEY="mailgun api key"
 export PUBLIC_API_KEY="mailgun api public key"
+export TEMPLATES="templates"
 ```
 Enable test mode
 ```
@@ -21,5 +22,18 @@ curl -X POST http://localhost:3411/email \
         \"from\":\"sender@mailinator.com\",
         \"subject\":\"Cool Subject\",
         \"text\":\"Interesting Message\"
+    }"
+```
+Use a template
+```bash
+curl -X POST http://localhost:3411/email \
+-d "{
+        \"to\": \"receipient@mailinator.com\",
+        \"from\": \"sender@mailinator.com\",
+        \"template\": \"test\",
+        \"params\": {
+            \"name\": \"Cuthbert\",
+            \"colour\": \"Purple\"
+        }
     }"
 ```
