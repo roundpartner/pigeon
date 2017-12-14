@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/roundpartner/pigeon.svg?branch=master)](https://travis-ci.org/roundpartner/pigeon)
 # Pigeon
 A Comms Micro Service
 ## Abstract
