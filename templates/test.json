@@ -1,4 +1,5 @@
 {
+    "from": "sender@mailinator.com",
     "subject": "The subject is test",
     "text": {
         "name": "test",

@@ -47,7 +47,7 @@ func TestQueuesEmail(t *testing.T) {
 
 func TestSendTemplatedEmail(t *testing.T) {
 	service := NewMailService()
-	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Template: "test"}
+	message := Message{To: ToEmail, Subject: "Queued Message", Template: "test"}
 	err := service.SendTemplatedEmail(&message)
 	if err != nil {
 		t.Errorf("Error: %s", err.Error())

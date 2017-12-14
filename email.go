@@ -19,9 +19,9 @@ type Message struct {
 }
 
 type MailService struct {
-	Service  mailgun.Mailgun
-	TestMode bool
-	Messages chan *Message
+	Service         mailgun.Mailgun
+	TestMode        bool
+	Messages        chan *Message
 	templateManager *TemplateManager
 }
 
@@ -90,6 +90,10 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 			return err
 		}
 		msg.Html = html
+	}
+
+	if emailTpl.From != "" {
+		msg.From = emailTpl.From
 	}
 
 	message := ms.Service.NewMessage(

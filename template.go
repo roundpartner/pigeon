@@ -2,10 +2,10 @@ package main
 
 import (
 	"bytes"
-	"text/template"
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
 	"os"
+	"text/template"
 )
 
 type Template struct {
@@ -33,9 +33,10 @@ func Assemble(name string, text string, data interface{}) (string, error) {
 }
 
 type EmailTemplate struct {
-	Subject string `json:"subject"`
-	Text *Template `json:"text"`
-	Html *Template `json:"html"`
+	From    string    `json:"from"`
+	Subject string    `json:"subject"`
+	Text    *Template `json:"text"`
+	Html    *Template `json:"html"`
 }
 
 func NewTemplateManager() *TemplateManager {
