@@ -44,3 +44,13 @@ func TestQueuesEmail(t *testing.T) {
 	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
 	service.QueueEmail(&message)
 }
+
+func TestSendTemplatedEmail(t *testing.T) {
+	service := NewMailService()
+	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Template: "This is a test template"}
+	err := service.SendTemplatedEmail(&message)
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}

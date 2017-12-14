@@ -7,13 +7,15 @@ import (
 )
 
 type Message struct {
-	From    string `json:"from"`
-	To      string `json:"to"`
-	ReplyTo string `json:"reply_to"`
-	Subject string `json:"subject"`
-	Text    string `json:"text"`
-	Html    string `json:"html"`
-	Track   bool   `json:"track"`
+	From     string                 `json:"from"`
+	To       string                 `json:"to"`
+	ReplyTo  string                 `json:"reply_to"`
+	Subject  string                 `json:"subject"`
+	Text     string                 `json:"text"`
+	Html     string                 `json:"html"`
+	Track    bool                   `json:"track"`
+	Template string                 `json:template`
+	Params   map[string]interface{} `json:params`
 }
 
 type MailService struct {
@@ -38,6 +40,10 @@ func (ms *MailService) run() {
 	go func() {
 		for {
 			msg := <-ms.Messages
+			if "" != msg.Template {
+				ms.SendTemplatedEmail(msg)
+				continue
+			}
 			ms.SendEmail(msg)
 		}
 	}()
@@ -56,13 +62,37 @@ func (ms *MailService) SendEmail(msg *Message) error {
 	if "" != msg.Html {
 		message.SetHtml(msg.Html)
 	}
-	if ms.TestMode {
-		message.EnableTestMode()
-	}
 	if "" != msg.ReplyTo {
 		message.SetReplyTo(msg.ReplyTo)
 	}
 	message.SetTracking(msg.Track)
+	return ms.send(message)
+}
+
+func (ms *MailService) SendTemplatedEmail(msg *Message) error {
+
+	tpl := &Template{Name: "simple", Text: msg.Template}
+	text, err := AssembleTemplate(tpl, msg)
+	if err != nil {
+		log.Printf("Error: %s\n", err.Error())
+		return err
+	}
+	msg.Text = text
+
+	message := ms.Service.NewMessage(
+		msg.From,
+		msg.Subject,
+		msg.Text,
+		msg.To)
+
+	return ms.send(message)
+}
+
+func (ms *MailService) send(message *mailgun.Message) error {
+	if ms.TestMode {
+		message.EnableTestMode()
+	}
+
 	resp, id, err := ms.Service.Send(message)
 
 	if err != nil {
