@@ -13,6 +13,16 @@ func TestInit(t *testing.T) {
 	ToEmail = os.Getenv("TO_EMAIL")
 }
 
+func TestMessageDefaults(t *testing.T) {
+	msg := &Message{}
+	if msg.Html != "" {
+		t.Errorf("Html was not false: %s", msg.Html)
+	}
+	if msg.Track != false {
+		t.Errorf("Track was not false: %s", msg.Track)
+	}
+}
+
 func TestSendsEmail(t *testing.T) {
 	service := NewMailService()
 	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}

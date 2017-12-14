@@ -11,6 +11,8 @@ type Message struct {
 	To      string `json:"to"`
 	Subject string `json:"subject"`
 	Text    string `json:"text"`
+	Html    string `json:"html"`
+	Track   bool   `json:"track"`
 }
 
 type MailService struct {
@@ -50,10 +52,13 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		msg.Subject,
 		msg.Text,
 		msg.To)
+	if "" != msg.Html {
+		message.SetHtml(msg.Html)
+	}
 	if ms.TestMode {
 		message.EnableTestMode()
 	}
-	message.SetTracking(false)
+	message.SetTracking(msg.Track)
 	resp, id, err := ms.Service.Send(message)
 
 	if err != nil {
