@@ -9,6 +9,7 @@ import (
 type Message struct {
 	From    string `json:"from"`
 	To      string `json:"to"`
+	ReplyTo string `json:"reply_to"`
 	Subject string `json:"subject"`
 	Text    string `json:"text"`
 	Html    string `json:"html"`
@@ -57,6 +58,9 @@ func (ms *MailService) SendEmail(msg *Message) error {
 	}
 	if ms.TestMode {
 		message.EnableTestMode()
+	}
+	if "" != msg.ReplyTo {
+		message.SetReplyTo(msg.ReplyTo)
 	}
 	message.SetTracking(msg.Track)
 	resp, id, err := ms.Service.Send(message)
