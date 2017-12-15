@@ -96,6 +96,10 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 		msg.From = emailTpl.From
 	}
 
+	if emailTpl.Subject != "" {
+		msg.Subject = emailTpl.Subject
+	}
+
 	if ms.TestMode {
 		log.Printf("Text: %s\n", msg.Text)
 	}

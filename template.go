@@ -2,10 +2,10 @@ package main
 
 import (
 	"bytes"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"text/template"
-	"gopkg.in/yaml.v2"
 )
 
 type Template struct {
