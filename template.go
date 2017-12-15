@@ -2,15 +2,15 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"os"
 	"text/template"
+	"gopkg.in/yaml.v2"
 )
 
 type Template struct {
-	Name string `json:"name"`
-	Text string `json:"text"`
+	Name string `json:"name" yaml:"name"`
+	Text string `json:"text" yaml:"text"`
 }
 
 func AssembleTemplate(tpl *Template, msg *Message) (string, error) {
@@ -33,10 +33,10 @@ func Assemble(name string, text string, data interface{}) (string, error) {
 }
 
 type EmailTemplate struct {
-	From    string    `json:"from"`
-	Subject string    `json:"subject"`
-	Text    *Template `json:"text"`
-	Html    *Template `json:"html"`
+	From    string    `json:"from" yaml:"from"`
+	Subject string    `json:"subject" yaml:"subject"`
+	Text    *Template `json:"text" yaml:"text"`
+	Html    *Template `json:"html" yaml:"html"`
 }
 
 func NewTemplateManager() *TemplateManager {
@@ -52,12 +52,11 @@ type TemplateManager struct {
 }
 
 func (tm *TemplateManager) ImportTemplate(name string) (*EmailTemplate, error) {
-	b, err := ioutil.ReadFile(tm.TemplateDirectory + "/" + name + ".json")
+	b, err := ioutil.ReadFile(tm.TemplateDirectory + "/" + name + ".yml")
 	if err != nil {
 		return nil, err
 	}
 	tpl := &EmailTemplate{}
-	decoder := json.NewDecoder(bytes.NewBuffer(b))
-	err = decoder.Decode(tpl)
+	err = yaml.Unmarshal(b, tpl)
 	return tpl, err
 }
