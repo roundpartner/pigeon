@@ -9,6 +9,7 @@ export DOMAIN="mailgun domain"
 export API_KEY="mailgun api key"
 export PUBLIC_API_KEY="mailgun api public key"
 export TEMPLATES="templates"
+export TO_EMAIL="test@mailinator.com"
 ```
 Enable test mode
 ```
