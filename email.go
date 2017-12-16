@@ -117,7 +117,7 @@ func (ms *MailService) assembleTemplate(msg *Message) error {
 		msg.From = emailTpl.From
 	}
 
-	if emailTpl.Subject != "" {
+	if msg.Subject == "" && emailTpl.Subject != "" {
 		msg.Subject = emailTpl.Subject
 	}
 

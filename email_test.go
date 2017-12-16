@@ -57,7 +57,7 @@ func TestSendTemplatedEmail(t *testing.T) {
 
 func TestAssembleTemplate(t *testing.T) {
 	service := NewMailService()
-	message := Message{To: ToEmail, Subject: "Queued Message", Template: "test"}
+	message := Message{To: ToEmail, Template: "test"}
 	service.assembleTemplate(&message)
 	if message.From == "" {
 		t.Errorf("Error: from for email was not assembled\n")
@@ -73,6 +73,16 @@ func TestAssembleTemplate(t *testing.T) {
 	}
 	if message.Html == "" {
 		t.Errorf("Error: html for email was not assembled\n")
+		t.FailNow()
+	}
+}
+
+func TestAssembleTemplateDoesNotChangeSubject(t *testing.T) {
+	service := NewMailService()
+	message := Message{To: ToEmail, Subject: "Queued Message", Template: "test"}
+	service.assembleTemplate(&message)
+	if message.Subject != "Queued Message" {
+		t.Errorf("Error: subject for email was not assembled\n")
 		t.FailNow()
 	}
 }
