@@ -20,3 +20,17 @@ func TestMailService_SendEmail(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestMailService_SendEmailFailsWithNoToAddress(t *testing.T) {
+	body := strings.NewReader("{\"from\":\"sender@mailinator.com\",\"subject\":\"Cool Subject\",\"text\":\"Interesting Message\"}")
+	rr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/email", body)
+
+	rs := NewRestServer()
+	rs.Router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("Service did not return status bad request")
+		t.FailNow()
+	}
+}

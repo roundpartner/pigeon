@@ -50,6 +50,12 @@ func (rs *RestServer) SendEmail(w http.ResponseWriter, req *http.Request) {
 	msg := &Message{}
 	err := decoder.Decode(msg)
 	if err != nil {
+		log.Printf("Error: %s\n", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if msg.To == "" {
+		log.Printf("Error: To address is required\n")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
