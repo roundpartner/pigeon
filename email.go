@@ -80,7 +80,7 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 		log.Printf("Error: To address is required for sending emails\n")
 		return errors.New("missing param: to address not set")
 	}
-	err := ms.assembleTemplate(msg)
+	err := ms.AssembleTemplate(msg)
 	if err != nil {
 		log.Printf("Error: %s\n", err.Error())
 		return err
@@ -106,7 +106,7 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 	return ms.send(message)
 }
 
-func (ms *MailService) assembleTemplate(msg *Message) error {
+func (ms *MailService) AssembleTemplate(msg *Message) error {
 	emailTpl, err := ms.templateManager.ImportTemplate(msg.Template)
 	if err != nil {
 		log.Printf("Error: %s\n", err.Error())

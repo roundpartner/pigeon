@@ -41,6 +41,7 @@ func NewRestServer() *RestServer {
 	rs := &RestServer{}
 	rs.Router = mux.NewRouter()
 	rs.Router.HandleFunc("/email", rs.SendEmail).Methods("POST")
+	rs.Router.HandleFunc("/template", rs.ViewTemplate).Methods("POST")
 	rs.Mail = NewMailService()
 	return rs
 }
@@ -50,15 +51,41 @@ func (rs *RestServer) SendEmail(w http.ResponseWriter, req *http.Request) {
 	msg := &Message{}
 	err := decoder.Decode(msg)
 	if err != nil {
-		log.Printf("Error: %s\n", err.Error())
+		log.Printf("[ERROR] Bad Request: %s\n", err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if msg.To == "" {
-		log.Printf("Error: To address is required\n")
+		log.Printf("[ERROR] Bad Request: To address is required\n")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	rs.Mail.QueueEmail(msg)
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (rs *RestServer) ViewTemplate(w http.ResponseWriter, req *http.Request) {
+	decoder := json.NewDecoder(req.Body)
+	msg := &Message{}
+	err := decoder.Decode(msg)
+	if err != nil {
+		log.Printf("[ERROR] Bad Request: %s\n", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = rs.Mail.AssembleTemplate(msg)
+	if err != nil {
+		log.Printf("[ERROR] Bad Request: %s\n", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	buf, err := json.Marshal(msg)
+	if err != nil {
+		log.Printf("[ERROR] Marshal Error: %s\n", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(buf)
 }

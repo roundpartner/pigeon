@@ -11,6 +11,12 @@ var ToEmail string
 func TestInit(t *testing.T) {
 	FromEmail = os.Getenv("FROM_EMAIL")
 	ToEmail = os.Getenv("TO_EMAIL")
+	if ToEmail == "" {
+		t.Fail()
+	}
+	if FromEmail == "" {
+		t.Fail()
+	}
 }
 
 func TestMessageDefaults(t *testing.T) {
@@ -58,7 +64,7 @@ func TestSendTemplatedEmail(t *testing.T) {
 func TestAssembleTemplate(t *testing.T) {
 	service := NewMailService()
 	message := Message{To: ToEmail, Template: "test"}
-	service.assembleTemplate(&message)
+	service.AssembleTemplate(&message)
 	if message.From == "" {
 		t.Errorf("Error: from for email was not assembled\n")
 		t.FailNow()
@@ -80,7 +86,7 @@ func TestAssembleTemplate(t *testing.T) {
 func TestAssembleTemplateDoesNotChangeSubject(t *testing.T) {
 	service := NewMailService()
 	message := Message{To: ToEmail, Subject: "Queued Message", Template: "test"}
-	service.assembleTemplate(&message)
+	service.AssembleTemplate(&message)
 	if message.Subject != "Queued Message" {
 		t.Errorf("Error: subject for email was not assembled\n")
 		t.FailNow()

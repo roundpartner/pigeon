@@ -39,3 +39,14 @@ curl -X POST http://localhost:3411/email \
         }
     }"
 ```
+### Get a template
+```bash
+curl -X POST http://localhost:3411/template \
+-d "{
+        \"template\": \"test\",
+        \"params\": {
+            \"name\": \"Cuthbert\",
+            \"colour\": \"Purple\"
+        }
+    }"
+```
