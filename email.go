@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"gopkg.in/mailgun/mailgun-go.v1"
 	"log"
 	"os"
@@ -55,6 +56,10 @@ func (ms *MailService) QueueEmail(message *Message) {
 }
 
 func (ms *MailService) SendEmail(msg *Message) error {
+	if msg.To == "" {
+		log.Printf("Error: To address is required for sending emails\n")
+		return errors.New("missing param: to address not set")
+	}
 	message := ms.Service.NewMessage(
 		msg.From,
 		msg.Subject,
@@ -71,6 +76,10 @@ func (ms *MailService) SendEmail(msg *Message) error {
 }
 
 func (ms *MailService) SendTemplatedEmail(msg *Message) error {
+	if msg.To == "" {
+		log.Printf("Error: To address is required for sending emails\n")
+		return errors.New("missing param: to address not set")
+	}
 	err := ms.assembleTemplate(msg)
 	if err != nil {
 		log.Printf("Error: %s\n", err.Error())
