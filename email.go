@@ -71,38 +71,14 @@ func (ms *MailService) SendEmail(msg *Message) error {
 }
 
 func (ms *MailService) SendTemplatedEmail(msg *Message) error {
-	emailTpl, err := ms.templateManager.ImportTemplate(msg.Template)
+	err := ms.assembleTemplate(msg)
 	if err != nil {
 		log.Printf("Error: %s\n", err.Error())
 		return err
-	}
-	text, err := AssembleTemplate(emailTpl.Text, msg)
-	if err != nil {
-		log.Printf("Error: %s\n", err.Error())
-		return err
-	}
-	msg.Text = text
-
-	if nil != emailTpl.Html {
-		html, err := AssembleTemplate(emailTpl.Html, msg)
-		if err != nil {
-			log.Printf("Error: %s\n", err.Error())
-			return err
-		}
-		msg.Html = html
-	}
-
-	if emailTpl.From != "" {
-		msg.From = emailTpl.From
-	}
-
-	if emailTpl.Subject != "" {
-		msg.Subject = emailTpl.Subject
 	}
 
 	if ms.TestMode {
-		log.Printf("Subject: %s\n", msg.Subject)
-		log.Printf("Text: %s\n", msg.Text)
+		log.Printf("----------\nSubject: %s\nText: %s\nHtml: %s\n----------\n", msg.Subject, msg.Text, msg.Html)
 	}
 	message := ms.Service.NewMessage(
 		msg.From,
@@ -119,6 +95,40 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 	message.SetTracking(msg.Track)
 
 	return ms.send(message)
+}
+
+func (ms *MailService) assembleTemplate(msg *Message) error {
+	emailTpl, err := ms.templateManager.ImportTemplate(msg.Template)
+	if err != nil {
+		log.Printf("Error: %s\n", err.Error())
+		return err
+	}
+
+	if emailTpl.From != "" {
+		msg.From = emailTpl.From
+	}
+
+	if emailTpl.Subject != "" {
+		msg.Subject = emailTpl.Subject
+	}
+
+	text, err := AssembleTemplate(emailTpl.Text, msg)
+	if err != nil {
+		log.Printf("Error: %s\n", err.Error())
+		return err
+	}
+	msg.Text = text
+
+	if nil != emailTpl.Html {
+		html, err := AssembleTemplate(emailTpl.Html, msg)
+		if err != nil {
+			log.Printf("Error: %s\n", err.Error())
+			return err
+		}
+		msg.Html = html
+	}
+
+	return nil
 }
 
 func (ms *MailService) send(message *mailgun.Message) error {
