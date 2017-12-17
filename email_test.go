@@ -25,7 +25,7 @@ func TestMessageDefaults(t *testing.T) {
 		t.Errorf("Html was not false: %s", msg.Html)
 	}
 	if msg.Track != false {
-		t.Errorf("Track was not false: %s", msg.Track)
+		t.Errorf("Track was not false: %t", msg.Track)
 	}
 }
 

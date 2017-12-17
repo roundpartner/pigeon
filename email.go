@@ -15,8 +15,8 @@ type Message struct {
 	Text     string                 `json:"text"`
 	Html     string                 `json:"html"`
 	Track    bool                   `json:"track"`
-	Template string                 `json:template`
-	Params   map[string]interface{} `json:params`
+	Template string                 `json:"template"`
+	Params   map[string]interface{} `json:"params"`
 }
 
 type MailService struct {
