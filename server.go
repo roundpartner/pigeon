@@ -6,9 +6,6 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func ListenAndServe(port int) {
@@ -16,14 +13,8 @@ func ListenAndServe(port int) {
 
 	rs := NewRestServer()
 	server := &http.Server{Addr: address, Handler: rs.Router}
-	go func() {
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGTERM)
-		<-c
-		signal.Stop(c)
-		log.Println("Server shutting down gracefully")
-		server.Shutdown(nil)
-	}()
+
+	ShutdownGracefully(server)
 
 	log.Printf("Server starting on port %d\n", port)
 	err := server.ListenAndServe()
@@ -33,8 +24,9 @@ func ListenAndServe(port int) {
 }
 
 type RestServer struct {
-	Router *mux.Router
-	Mail   *MailService
+	Router            *mux.Router
+	Mail              *MailService
+	activeConnections int
 }
 
 func NewRestServer() *RestServer {
