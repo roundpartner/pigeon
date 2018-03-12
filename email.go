@@ -5,6 +5,7 @@ import (
 	"gopkg.in/mailgun/mailgun-go.v1"
 	"log"
 	"os"
+	"regexp"
 )
 
 type Message struct {
@@ -20,10 +21,11 @@ type Message struct {
 }
 
 type MailService struct {
-	Service         mailgun.Mailgun
-	TestMode        bool
-	Messages        chan *Message
-	templateManager *TemplateManager
+	Service            mailgun.Mailgun
+	TestMode           bool
+	Messages           chan *Message
+	templateManager    *TemplateManager
+	BlackListedAddress *regexp.Regexp
 }
 
 func NewMailService() *MailService {
@@ -33,6 +35,10 @@ func NewMailService() *MailService {
 	mg := mailgun.NewMailgun(domain, apiKey, publicApiKey)
 	testMode := os.Getenv("TEST_MODE")
 	service := &MailService{Service: mg, TestMode: "" != testMode, templateManager: NewTemplateManager()}
+	blackListedAddress, isSet := os.LookupEnv("BLACK_LISTED_ADDRESSES")
+	if isSet {
+		service.BlackListedAddress = regexp.MustCompile(blackListedAddress)
+	}
 	service.run()
 	return service
 }
@@ -59,6 +65,14 @@ func (ms *MailService) SendEmail(msg *Message) error {
 	if msg.To == "" {
 		log.Printf("Error: To address is required for sending emails\n")
 		return errors.New("missing param: to address not set")
+	}
+	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.From) {
+		log.Printf("Error: From address has been blacklisted\n")
+		return errors.New("blacklisted email")
+	}
+	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.ReplyTo) {
+		log.Printf("Error: ReplyTo address has been blacklisted\n")
+		return errors.New("blacklisted email")
 	}
 	message := ms.Service.NewMessage(
 		msg.From,

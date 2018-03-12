@@ -39,6 +39,20 @@ func TestSendsEmail(t *testing.T) {
 	}
 }
 
+func TestFromEmailBlocked(t *testing.T) {
+	os.Setenv("BLACK_LISTED_ADDRESSES", `\.co\.uk$`)
+	service := NewMailService()
+	message := Message{From: FromEmail, To: ToEmail, Subject: "Blocked Message", Text: "This tests that messages can be blocked"}
+	err := service.SendEmail(&message)
+	if err == nil {
+		t.FailNow()
+	}
+	if "blacklisted email" != err.Error() {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}
+
 func TestQueuesEmail(t *testing.T) {
 	service := NewMailService()
 
