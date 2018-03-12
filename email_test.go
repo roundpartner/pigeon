@@ -47,7 +47,21 @@ func TestFromEmailBlocked(t *testing.T) {
 	if err == nil {
 		t.FailNow()
 	}
-	if "blacklisted email" != err.Error() {
+	if "black listed email" != err.Error() {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}
+
+func TestReplyToEmailBlocked(t *testing.T) {
+	os.Setenv("BLACK_LISTED_ADDRESSES", `mailinator\.com$`)
+	service := NewMailService()
+	message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "Blocked Message", Text: "This tests that messages can be blocked"}
+	err := service.SendEmail(&message)
+	if err == nil {
+		t.FailNow()
+	}
+	if "black listed email" != err.Error() {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
 	}
