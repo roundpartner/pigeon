@@ -26,6 +26,7 @@ type MailService struct {
 	Messages           chan *Message
 	templateManager    *TemplateManager
 	BlackListedAddress *regexp.Regexp
+	BlackListedContent *regexp.Regexp
 }
 
 func NewMailService() *MailService {
@@ -38,6 +39,10 @@ func NewMailService() *MailService {
 	blackListedAddress, isSet := os.LookupEnv("BLACK_LISTED_ADDRESSES")
 	if isSet {
 		service.BlackListedAddress = regexp.MustCompile(blackListedAddress)
+	}
+	blackListedContent, isSet := os.LookupEnv("BLACK_LISTED_CONTENT")
+	if isSet {
+		service.BlackListedContent = regexp.MustCompile(blackListedContent)
 	}
 	service.run()
 	return service
@@ -73,6 +78,12 @@ func (ms *MailService) SendEmail(msg *Message) error {
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.ReplyTo) {
 		log.Printf("Error: ReplyTo address has been blacklisted\n")
 		return errors.New("black listed email")
+	}
+	if nil != ms.BlackListedContent {
+		if ms.BlackListedContent.MatchString(msg.Text) {
+			log.Printf("Error: Text has been blacklisted\n")
+			return errors.New("black listed phrase")
+		}
 	}
 	message := ms.Service.NewMessage(
 		msg.From,
