@@ -70,7 +70,7 @@ func TestReplyToEmailBlocked(t *testing.T) {
 }
 
 func TestContentEmailBlocked(t *testing.T) {
-	os.Setenv("BLACK_LISTED_CONTENT", `blocked`)
+	os.Setenv("BLACK_LISTED_CONTENT", `blocked|test`)
 	service := NewMailService()
 	message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "Blocked Message", Text: "This tests that messages can be blocked when keywords are being filtered"}
 	err := service.SendEmail(&message)
