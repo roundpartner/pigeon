@@ -75,6 +75,11 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		log.Printf("Error: To address is required for sending emails\n")
 		return errors.New("missing param: to address not set")
 	}
+	if msg.Report {
+		CheckSpamAssassin(msg)
+		log.Printf("Spam Score: %f Spam: %t\n", msg.SpamScore, msg.IsSpam)
+		msg.Subject = fmt.Sprintf("%s [Spam: %t Score: %f]", msg.Subject, msg.IsSpam, msg.SpamScore)
+	}
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.From) {
 		log.Printf("Error: From address has been blacklisted\n")
 		return errors.New("black listed email")
@@ -89,12 +94,6 @@ func (ms *MailService) SendEmail(msg *Message) error {
 			return errors.New("black listed phrase")
 		}
 	}
-	if msg.Report {
-		CheckSpamAssassin(msg)
-		log.Printf("Spam Score: %f Spam: %t\n", msg.SpamScore, msg.IsSpam)
-		msg.Subject = fmt.Sprintf("%s [Spam: %t Score: %f]", msg.Subject, msg.IsSpam, msg.SpamScore)
-	}
-
 	message := ms.Service.NewMessage(
 		msg.From,
 		msg.Subject,
@@ -120,7 +119,11 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 		log.Printf("Error: %s\n", err.Error())
 		return err
 	}
-
+	if msg.Report {
+		CheckSpamAssassin(msg)
+		log.Printf("Spam Score: %f Spam: %t\n", msg.SpamScore, msg.IsSpam)
+		msg.Subject = fmt.Sprintf("%s [Spam: %t Score: %f]", msg.Subject, msg.IsSpam, msg.SpamScore)
+	}
 	if ms.TestMode {
 		log.Printf("----------\nSubject: %s\nText: %s\nHtml: %s\n----------\n", msg.Subject, msg.Text, msg.Html)
 	}
