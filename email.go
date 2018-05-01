@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"gopkg.in/mailgun/mailgun-go.v1"
 	"log"
 	"os"
@@ -9,15 +10,18 @@ import (
 )
 
 type Message struct {
-	From     string                 `json:"from"`
-	To       string                 `json:"to"`
-	ReplyTo  string                 `json:"reply_to"`
-	Subject  string                 `json:"subject"`
-	Text     string                 `json:"text"`
-	Html     string                 `json:"html"`
-	Track    bool                   `json:"track"`
-	Template string                 `json:"template"`
-	Params   map[string]interface{} `json:"params"`
+	From      string                 `json:"from"`
+	To        string                 `json:"to"`
+	ReplyTo   string                 `json:"reply_to"`
+	Subject   string                 `json:"subject"`
+	Text      string                 `json:"text"`
+	Html      string                 `json:"html"`
+	Track     bool                   `json:"track"`
+	Template  string                 `json:"template"`
+	Params    map[string]interface{} `json:"params"`
+	Report    bool                   `json:"report,omitempty"`
+	IsSpam    bool
+	SpamScore float64
 }
 
 type MailService struct {
@@ -85,6 +89,12 @@ func (ms *MailService) SendEmail(msg *Message) error {
 			return errors.New("black listed phrase")
 		}
 	}
+	if msg.Report {
+		CheckSpamAssassin(msg)
+		log.Printf("Spam Score: %f Spam: %t\n", msg.SpamScore, msg.IsSpam)
+		msg.Subject = fmt.Sprintf("%s [Spam: %t Score: %f]", msg.Subject, msg.IsSpam, msg.SpamScore)
+	}
+
 	message := ms.Service.NewMessage(
 		msg.From,
 		msg.Subject,

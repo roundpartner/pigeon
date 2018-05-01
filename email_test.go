@@ -39,6 +39,26 @@ func TestSendsEmail(t *testing.T) {
 	}
 }
 
+func TestSendEmailWithReport(t *testing.T) {
+	service := NewMailService()
+	message := Message{
+		From:    FromEmail,
+		To:      ToEmail,
+		Subject: "Queued Message",
+		Text:    "This tests that messages can be queued",
+		Report:  true,
+	}
+	err := service.SendEmail(&message)
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+	if message.Subject != "Queued Message [Spam: false Score: 1.000000]" {
+		t.Errorf("Subject %s did not match", message.Subject)
+		t.FailNow()
+	}
+}
+
 func TestFromEmailBlocked(t *testing.T) {
 	os.Setenv("BLACK_LISTED_ADDRESSES", `\.co\.uk$`)
 	service := NewMailService()
