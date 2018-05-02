@@ -126,6 +126,21 @@ func TestSendTemplatedEmail(t *testing.T) {
 	}
 }
 
+func TestSendTemplatedEmailWithReport(t *testing.T) {
+	service := NewMailService()
+	message := Message{To: ToEmail, Subject: "Queued Message", Template: "test"}
+	message.Report = true
+	err := service.SendTemplatedEmail(&message)
+	if err != nil {
+		t.Errorf("Error: %s\n", err.Error())
+		t.FailNow()
+	}
+	if message.Subject != "Queued Message [Spam: false Score: 1.000000]" {
+		t.Errorf("Subject %s did not match", message.Subject)
+		t.FailNow()
+	}
+}
+
 func TestAssembleTemplate(t *testing.T) {
 	service := NewMailService()
 	message := Message{To: ToEmail, Template: "test"}
