@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/saintienn/go-spamc"
+	"github.com/thomaslorentsen/go-spamc"
 	"log"
+	"time"
 )
 
 func CheckSpamAssassin(msg *Message) {
-	html := fmt.Sprintf("To: %s\n\rFrom: %s\n\rSubject: %s\n\rMessage: %s", msg.To, msg.From, msg.Subject, msg.Html)
+	t := time.Now()
+	msgId := fmt.Sprintf("<%d.%s>", t.Unix(), msg.From)
+	html := fmt.Sprintf("To: %s\n\rFrom: %s\n\rSubject: %s\n\rDate: %s\n\rMessage-ID: %s\n\r\n\r%s\n\r", msg.To, msg.From, msg.Subject, t.Format("Fri, 02 Jan 2006 15:04:05 -0700"), msgId, msg.Text)
 
 	client := spamc.New("127.0.0.1:783", 10)
 	reply, err := client.Report(html)
