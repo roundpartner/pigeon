@@ -4,6 +4,10 @@
 A Comms Micro Service
 ## Abstract
 Provides end points for sending communication such as Email
+## Prerequisite
+```bash
+docker run -d -p 783:783 dinkel/spamassassin
+```
 # Usage
 ```bash
 export DOMAIN="mailgun domain"
