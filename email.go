@@ -37,7 +37,15 @@ func NewMailService() *MailService {
 	domain := os.Getenv("DOMAIN")
 	apiKey := os.Getenv("API_KEY")
 	publicApiKey := os.Getenv("PUBLIC_API_KEY")
-	mg := mailgun.NewMailgun(domain, apiKey, publicApiKey)
+	os.Setenv("MG_DOMAIN", domain)
+	os.Setenv("MG_API_KEY", apiKey)
+	os.Setenv("MG_PUBLIC_API_KEY", publicApiKey)
+
+	mg, err := mailgun.NewMailgunFromEnv()
+	if err != nil {
+		log.Printf("Error: %s", err.Error())
+		os.Exit(1)
+	}
 	testMode := os.Getenv("TEST_MODE")
 	service := &MailService{Service: mg, TestMode: "" != testMode, templateManager: NewTemplateManager()}
 	blackListedAddress, isSet := os.LookupEnv("BLACK_LISTED_ADDRESSES")
