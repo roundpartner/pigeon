@@ -20,6 +20,10 @@ Enable test mode
 ```
 export TEST_MODE=1
 ```
+Set api url to eu region
+```bash
+export MG_URL=https://api.eu.mailgun.net/v3
+```
 
 ## Send an email
 ```bash

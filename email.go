@@ -42,6 +42,11 @@ func NewMailService() *MailService {
 	os.Setenv("MG_PUBLIC_API_KEY", publicApiKey)
 
 	mg, err := mailgun.NewMailgunFromEnv()
+
+	url := os.Getenv("MG_URL")
+	if url == "" {
+		mg.SetAPIBase(mailgun.ApiBase)
+	}
 	if err != nil {
 		log.Printf("Error: %s", err.Error())
 		os.Exit(1)
