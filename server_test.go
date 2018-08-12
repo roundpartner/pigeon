@@ -70,3 +70,47 @@ func TestMailService_ViewTemplatedEmail(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestVerifyIpIsBlocked(t *testing.T) {
+	body := strings.NewReader("{\"ip\":\"185.104.184.126\"}")
+	rr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/verify", body)
+
+	rs := NewRestServer()
+	rs.Router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("Service did not return ok status")
+		t.FailNow()
+	}
+	if "application/json; charset=utf-8" != rr.Header().Get("Content-Type") {
+		t.Fatalf("Service did not return json header")
+		t.FailNow()
+	}
+	if `{"ip":"185.104.184.126","blocked":true}` != rr.Body.String() {
+		t.Fatalf("Empty body returned: %s", rr.Body.String())
+		t.FailNow()
+	}
+}
+
+func TestVerifyIpIsNotBlocked(t *testing.T) {
+	body := strings.NewReader("{\"ip\":\"127.0.0.1\"}")
+	rr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/verify", body)
+
+	rs := NewRestServer()
+	rs.Router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("Service did not return ok status")
+		t.FailNow()
+	}
+	if "application/json; charset=utf-8" != rr.Header().Get("Content-Type") {
+		t.Fatalf("Service did not return json header")
+		t.FailNow()
+	}
+	if `{"ip":"127.0.0.1","blocked":false}` != rr.Body.String() {
+		t.Fatalf("Empty body returned: %s", rr.Body.String())
+		t.FailNow()
+	}
+}

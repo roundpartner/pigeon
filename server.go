@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"github.com/mrichman/godnsbl"
 )
 
 func ListenAndServe(port int) {
@@ -34,6 +35,7 @@ func NewRestServer() *RestServer {
 	rs.Router = mux.NewRouter()
 	rs.Router.HandleFunc("/email", rs.SendEmail).Methods("POST")
 	rs.Router.HandleFunc("/template", rs.ViewTemplate).Methods("POST")
+	rs.Router.HandleFunc("/verify", rs.VerifyAddress).Methods("POST")
 	rs.Mail = NewMailService()
 	return rs
 }
@@ -77,6 +79,37 @@ func (rs *RestServer) ViewTemplate(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(buf)
+}
+
+type Lookup struct {
+	Ip string `json:"ip"`
+	Blocked bool `json:"blocked"`
+}
+
+func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
+	decoder := json.NewDecoder(req.Body)
+	lookup := &Lookup{}
+	err := decoder.Decode(lookup)
+	if err != nil {
+		log.Printf("[ERROR] Bad Request: %s\n", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	result := godnsbl.Lookup("spam.spamrats.com", lookup.Ip)
+	if len(result.Results) > 0 {
+		lookup.Blocked = result.Results[0].Listed
+	}
+
+	buf, err := json.Marshal(lookup)
+	if err != nil {
+		log.Printf("[ERROR] Marshal Error: %s\n", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(buf)
