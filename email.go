@@ -18,6 +18,7 @@ type Message struct {
 	Html      string                 `json:"html"`
 	Track     bool                   `json:"track"`
 	Template  string                 `json:"template"`
+	SenderIp  string                 `json:"sender_ip,omitempty"`
 	Params    map[string]interface{} `json:"params"`
 	Report    bool                   `json:"report,omitempty"`
 	IsSpam    bool
@@ -88,11 +89,6 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		log.Printf("Error: To address is required for sending emails\n")
 		return errors.New("missing param: to address not set")
 	}
-	if msg.Report {
-		CheckSpamAssassin(msg)
-		log.Printf("Spam Score: %f Spam: %t\n", msg.SpamScore, msg.IsSpam)
-		msg.Subject = fmt.Sprintf("%s [Spam: %t Score: %f]", msg.Subject, msg.IsSpam, msg.SpamScore)
-	}
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.From) {
 		log.Printf("Error: From address has been blacklisted\n")
 		return errors.New("black listed email")
@@ -106,6 +102,15 @@ func (ms *MailService) SendEmail(msg *Message) error {
 			log.Printf("Error: Text has been blacklisted\n")
 			return errors.New("black listed phrase")
 		}
+	}
+	if msg.SenderIp != "" && CheckBlackList(msg.SenderIp) {
+		log.Printf("Error: sender ip has been blacklisted\n")
+		return errors.New("black listed ip")
+	}
+	if msg.Report {
+		CheckSpamAssassin(msg)
+		log.Printf("Spam Score: %f Spam: %t\n", msg.SpamScore, msg.IsSpam)
+		msg.Subject = fmt.Sprintf("%s [Spam: %t Score: %f]", msg.Subject, msg.IsSpam, msg.SpamScore)
 	}
 	message := ms.Service.NewMessage(
 		msg.From,

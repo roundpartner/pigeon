@@ -104,6 +104,19 @@ func TestContentEmailBlocked(t *testing.T) {
 	}
 }
 
+func TestSendsEmailIpBlocked(t *testing.T) {
+	service := NewMailService()
+	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued", SenderIp: "185.104.184.126"}
+	err := service.SendEmail(&message)
+	if err == nil {
+		t.FailNow()
+	}
+	if "black listed ip" != err.Error() {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}
+
 func TestQueuesEmail(t *testing.T) {
 	service := NewMailService()
 

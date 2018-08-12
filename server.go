@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/mrichman/godnsbl"
 	"log"
 	"net/http"
 )
@@ -99,19 +98,7 @@ func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	blacklists := []string{
-		"zen.spamhaus.org",
-		"spam.spamrats.com",
-	}
-	for _, source := range blacklists {
-		result := godnsbl.Lookup(source, lookup.Ip)
-		if len(result.Results) > 0 {
-			lookup.Blocked = result.Results[0].Listed
-			if lookup.Blocked {
-				break
-			}
-		}
-	}
+	lookup.Blocked = CheckBlackList(lookup.Ip)
 
 	buf, err := json.Marshal(lookup)
 	if err != nil {
