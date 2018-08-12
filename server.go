@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/mrichman/godnsbl"
 	"log"
 	"net/http"
-	"github.com/mrichman/godnsbl"
 )
 
 func ListenAndServe(port int) {
@@ -85,8 +85,8 @@ func (rs *RestServer) ViewTemplate(w http.ResponseWriter, req *http.Request) {
 }
 
 type Lookup struct {
-	Ip string `json:"ip"`
-	Blocked bool `json:"blocked"`
+	Ip      string `json:"ip"`
+	Blocked bool   `json:"blocked"`
 }
 
 func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
@@ -98,9 +98,19 @@ func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	result := godnsbl.Lookup("spam.spamrats.com", lookup.Ip)
-	if len(result.Results) > 0 {
-		lookup.Blocked = result.Results[0].Listed
+
+	blacklists := []string{
+		"zen.spamhaus.org",
+		"spam.spamrats.com",
+	}
+	for _, source := range blacklists {
+		result := godnsbl.Lookup(source, lookup.Ip)
+		if len(result.Results) > 0 {
+			lookup.Blocked = result.Results[0].Listed
+			if lookup.Blocked {
+				break
+			}
+		}
 	}
 
 	buf, err := json.Marshal(lookup)

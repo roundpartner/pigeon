@@ -88,7 +88,7 @@ func TestVerifyIpIsBlocked(t *testing.T) {
 		t.FailNow()
 	}
 	if `{"ip":"185.104.184.126","blocked":true}` != rr.Body.String() {
-		t.Fatalf("Empty body returned: %s", rr.Body.String())
+		t.Fatalf("Unexpected body returned: %s", rr.Body.String())
 		t.FailNow()
 	}
 }
@@ -110,7 +110,7 @@ func TestVerifyIpIsNotBlocked(t *testing.T) {
 		t.FailNow()
 	}
 	if `{"ip":"127.0.0.1","blocked":false}` != rr.Body.String() {
-		t.Fatalf("Empty body returned: %s", rr.Body.String())
+		t.Fatalf("Unexpected body returned: %s", rr.Body.String())
 		t.FailNow()
 	}
 }
