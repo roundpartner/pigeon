@@ -28,7 +28,8 @@ func CheckSpamAssassin(msg *Message) {
 func CheckBlackList(ip string) bool {
 	lookup := Lookup{Ip: ip}
 	blacklists := []string{
-		"zen.spamhaus.org",
+		"sbl.spamhaus.org",
+		"xbl.spamhaus.org",
 		"spam.spamrats.com",
 	}
 	for _, source := range blacklists {
