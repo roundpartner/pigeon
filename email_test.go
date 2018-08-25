@@ -104,6 +104,21 @@ func TestContentEmailBlocked(t *testing.T) {
 	}
 }
 
+func TestContentEmailBlockedUrl(t *testing.T) {
+	os.Setenv("BLACK_LISTED_CONTENT", `http[^ ]+http`)
+	service := NewMailService()
+	message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "Blocked Message", Text: "This tests that messages can be http://google.com/somewhere?http://blocked.com/address when keywords are being filtered"}
+	err := service.SendEmail(&message)
+	os.Unsetenv("BLACK_LISTED_CONTENT")
+	if err == nil {
+		t.FailNow()
+	}
+	if "black listed phrase" != err.Error() {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}
+
 func TestSendsEmailIpBlocked(t *testing.T) {
 	service := NewMailService()
 	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued", SenderIp: "185.104.184.126"}
