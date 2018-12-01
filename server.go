@@ -40,10 +40,6 @@ func NewRestServer() *RestServer {
 	return rs
 }
 
-func(rs *RestServer) Check(w http.ResponseWriter, req *http.Request) {
-	w.WriteHeader(http.StatusNoContent)
-}
-
 func (rs *RestServer) SendEmail(w http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	msg := &Message{}
