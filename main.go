@@ -14,10 +14,9 @@ var ServerConfig = struct {
 }
 
 func main() {
+	log.SetOutput(os.Stdout)
 	autoflags.Define(&ServerConfig)
 	flag.Parse()
-
-	log.SetOutput(os.Stdout)
 
 	ListenAndServe(ServerConfig.Port)
 }

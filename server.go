@@ -32,7 +32,7 @@ type RestServer struct {
 func NewRestServer() *RestServer {
 	rs := &RestServer{}
 	rs.Router = mux.NewRouter()
-	rs.Router.HandleFunc("/check", rs.Check).Methods("GET")
+	Check(rs.Router)
 	rs.Router.HandleFunc("/email", rs.SendEmail).Methods("POST")
 	rs.Router.HandleFunc("/template", rs.ViewTemplate).Methods("POST")
 	rs.Router.HandleFunc("/verify", rs.VerifyAddress).Methods("POST")

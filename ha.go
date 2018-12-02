@@ -1,7 +1,23 @@
 package main
 
-import "net/http"
+import (
+	"github.com/gorilla/mux"
+	"net/http"
+)
 
-func (rs *RestServer) Check(w http.ResponseWriter, req *http.Request) {
-	w.WriteHeader(http.StatusNoContent)
+var serviceAvailable = true
+
+func Check(router *mux.Router) {
+	check := func(w http.ResponseWriter, req *http.Request) {
+		if !serviceAvailable {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}
+	metrics := func(w http.ResponseWriter, req *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}
+	router.HandleFunc("/check", check).Methods("GET")
+	router.HandleFunc("/metrics", metrics).Methods("GET")
 }
