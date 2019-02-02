@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"gopkg.in/mailgun/mailgun-go.v1"
 	"log"
 	"os"
@@ -107,11 +106,6 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		log.Printf("Error: sender ip has been blacklisted\n")
 		return errors.New("black listed ip")
 	}
-	if msg.Report {
-		CheckSpamAssassin(msg)
-		log.Printf("Spam Score: %f Spam: %t\n", msg.SpamScore, msg.IsSpam)
-		msg.Subject = fmt.Sprintf("%s [Spam: %t Score: %f]", msg.Subject, msg.IsSpam, msg.SpamScore)
-	}
 	message := ms.Service.NewMessage(
 		msg.From,
 		msg.Subject,
@@ -136,11 +130,6 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 	if err != nil {
 		log.Printf("Error: %s\n", err.Error())
 		return err
-	}
-	if msg.Report {
-		CheckSpamAssassin(msg)
-		log.Printf("Spam Score: %f Spam: %t\n", msg.SpamScore, msg.IsSpam)
-		msg.Subject = fmt.Sprintf("%s [Spam: %t Score: %f]", msg.Subject, msg.IsSpam, msg.SpamScore)
 	}
 	if ms.TestMode {
 		log.Printf("----------\nSubject: %s\nText: %s\nHtml: %s\n----------\n", msg.Subject, msg.Text, msg.Html)
