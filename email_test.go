@@ -29,9 +29,41 @@ func TestMessageDefaults(t *testing.T) {
 	}
 }
 
+func TestRequiresTo(t *testing.T) {
+	service := NewMailService()
+	message := Message{From: FromEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
+	err := service.SendEmail(&message)
+	if err == nil {
+		t.FailNow()
+	}
+	if err.Error() != "missing param: to address not set" {
+		t.FailNow()
+	}
+}
+
 func TestSendsEmail(t *testing.T) {
 	service := NewMailService()
 	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
+	err := service.SendEmail(&message)
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}
+
+func TestSendsHtmlEmail(t *testing.T) {
+	service := NewMailService()
+	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued", Html: "This tests that emails can contain html"}
+	err := service.SendEmail(&message)
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}
+
+func TestSendsEmailWithReplyTo(t *testing.T) {
+	service := NewMailService()
+	message := Message{From: FromEmail, ReplyTo: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
 	err := service.SendEmail(&message)
 	if err != nil {
 		t.Errorf("Error: %s", err.Error())
@@ -137,6 +169,11 @@ func TestQueuesEmail(t *testing.T) {
 
 	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
 	service.QueueEmail(&message)
+
+	response := <-service.Messages
+	if response.Text != message.Text {
+		t.FailNow()
+	}
 }
 
 func TestSendTemplatedEmail(t *testing.T) {
@@ -145,6 +182,39 @@ func TestSendTemplatedEmail(t *testing.T) {
 	err := service.SendTemplatedEmail(&message)
 	if err != nil {
 		t.Errorf("Error: %s\n", err.Error())
+		t.FailNow()
+	}
+}
+
+func TestSendTemplatedEmailRequiresTo(t *testing.T) {
+	service := NewMailService()
+	message := Message{Subject: "Queued Message", Template: "test"}
+	err := service.SendTemplatedEmail(&message)
+	if err == nil {
+		t.FailNow()
+	}
+	if err.Error() != "missing param: to address not set" {
+		t.FailNow()
+	}
+}
+
+func TestQueueTemplatedEmail(t *testing.T) {
+	service := NewMailService()
+
+	message := Message{From: FromEmail, To: ToEmail, Subject: "Queued Message", Template: "test"}
+	service.QueueEmail(&message)
+
+	response := <-service.Messages
+	if response.Template != message.Template {
+		t.FailNow()
+	}
+}
+
+func TestAssembleTemplateWithInvalidTemplate(t *testing.T) {
+	service := NewMailService()
+	message := Message{To: ToEmail, Template: "nonexistant"}
+	err := service.AssembleTemplate(&message)
+	if err == nil {
 		t.FailNow()
 	}
 }
@@ -167,6 +237,16 @@ func TestAssembleTemplate(t *testing.T) {
 	}
 	if message.Html == "" {
 		t.Errorf("Error: html for email was not assembled\n")
+		t.FailNow()
+	}
+}
+
+func TestAssembleTemplateWithReplyTo(t *testing.T) {
+	service := NewMailService()
+	message := Message{To: ToEmail, ReplyTo: FromEmail, Template: "test"}
+	service.AssembleTemplate(&message)
+	if message.ReplyTo == "" {
+		t.Errorf("Error: reply to for email was not assembled\n")
 		t.FailNow()
 	}
 }
