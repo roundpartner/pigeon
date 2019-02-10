@@ -17,3 +17,19 @@ func TestCheckBlackList(t *testing.T) {
 	}
 	CheckBlackList(m.SenderIp)
 }
+
+func TestCheckAkismet(t *testing.T) {
+	FromEmail = os.Getenv("FROM_EMAIL")
+	msg := &Message{
+		Text:      "This is a test",
+		Website:   "http://www.thomaslorentsen.co.uk",
+		UserAgent: "golang",
+		FromName:  "Cuthbert Rumbold",
+		From:      FromEmail,
+		SenderIp:  "127.0.0.1",
+	}
+	result := CheckAkismet(msg)
+	if result == true {
+		t.FailNow()
+	}
+}

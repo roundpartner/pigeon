@@ -10,6 +10,7 @@ import (
 
 type Message struct {
 	From      string                 `json:"from"`
+	FromName  string                 `json:"from_name,omitempty"`
 	To        string                 `json:"to"`
 	ReplyTo   string                 `json:"reply_to"`
 	Subject   string                 `json:"subject"`
@@ -18,6 +19,8 @@ type Message struct {
 	Track     bool                   `json:"track"`
 	Template  string                 `json:"template"`
 	SenderIp  string                 `json:"sender_ip,omitempty"`
+	UserAgent string                 `json:"user_agent,omitempty"`
+	Website   string                 `json:"website,omitempty"`
 	Params    map[string]interface{} `json:"params"`
 	Report    bool                   `json:"report,omitempty"`
 	IsSpam    bool
