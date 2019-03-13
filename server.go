@@ -41,6 +41,7 @@ func NewRestServer() *RestServer {
 }
 
 func (rs *RestServer) SendEmail(w http.ResponseWriter, req *http.Request) {
+	log.Printf("[INFO] Received request to send email", err.Error())
 	decoder := json.NewDecoder(req.Body)
 	msg := &Message{}
 	err := decoder.Decode(msg)
@@ -59,6 +60,7 @@ func (rs *RestServer) SendEmail(w http.ResponseWriter, req *http.Request) {
 }
 
 func (rs *RestServer) ViewTemplate(w http.ResponseWriter, req *http.Request) {
+	log.Printf("[INFO] Received request to view template", err.Error())
 	decoder := json.NewDecoder(req.Body)
 	msg := &Message{}
 	err := decoder.Decode(msg)
@@ -90,6 +92,7 @@ type Lookup struct {
 }
 
 func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
+	log.Printf("[INFO] Received request to verify email", err.Error())
 	decoder := json.NewDecoder(req.Body)
 	lookup := &Lookup{}
 	err := decoder.Decode(lookup)
