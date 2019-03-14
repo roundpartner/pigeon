@@ -131,6 +131,18 @@ func TestContentEmailBlockedIgnoresCase(t *testing.T) {
 	}
 }
 
+func TestContentEmailEmptyBlackList(t *testing.T) {
+	os.Setenv("BLACK_LISTED_CONTENT", ``)
+	service := NewMailService()
+	message := Message{From: FromEmail, ReplyTo: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
+	err := service.SendEmail(&message)
+	os.Unsetenv("BLACK_LISTED_CONTENT")
+	if err != nil {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}
+
 func TestContentEmailBlockedUrl(t *testing.T) {
 	os.Setenv("BLACK_LISTED_CONTENT", `http[^ ]+http`)
 	service := NewMailService()
