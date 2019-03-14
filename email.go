@@ -57,11 +57,11 @@ func NewMailService() *MailService {
 	testMode := os.Getenv("TEST_MODE")
 	service := &MailService{Service: mg, TestMode: "" != testMode, templateManager: NewTemplateManager()}
 	blackListedAddress, isSet := os.LookupEnv("BLACK_LISTED_ADDRESSES")
-	if isSet {
+	if isSet && "" != blackListedAddress {
 		service.BlackListedAddress = regexp.MustCompile(blackListedAddress)
 	}
 	blackListedContent, isSet := os.LookupEnv("BLACK_LISTED_CONTENT")
-	if isSet {
+	if isSet && "" != blackListedContent {
 		service.BlackListedContent = regexp.MustCompile(blackListedContent)
 	}
 	service.run()
