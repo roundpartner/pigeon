@@ -33,11 +33,11 @@ func ShutdownGracefully(server *http.Server) {
 
 		serviceAvailable = false
 
-		log.Println("Waiting for active connections to stop")
+		log.Println("[INFO] Waiting for active connections to stop")
 		for activeConnections > 0 {
 			time.Sleep(time.Millisecond)
 		}
-		log.Println("Server shutting down gracefully")
+		log.Println("[INFO] Server shutting down gracefully")
 
 		server.Shutdown(nil)
 	}()
