@@ -87,6 +87,7 @@ func (rs *RestServer) ViewTemplate(w http.ResponseWriter, req *http.Request) {
 }
 
 type Lookup struct {
+	Email   string `json:"email,omitempty"`
 	Ip      string `json:"ip"`
 	Blocked bool   `json:"blocked"`
 }
