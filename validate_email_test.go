@@ -3,14 +3,14 @@ package main
 import "testing"
 
 func TestValidateEmail(t *testing.T) {
-	result := ValidateEmail("tom@thomaslorentsen.co.uk")
+	result := ValidateEmail("tester@mailinator.com")
 	if false == result {
 		t.FailNow()
 	}
 }
 
 func TestValidateEmailInvalidAddress(t *testing.T) {
-	result := ValidateEmail("thomaslorentsen.co.uk")
+	result := ValidateEmail("mailinator.com")
 	if true == result {
 		t.FailNow()
 	}

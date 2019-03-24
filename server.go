@@ -103,7 +103,7 @@ func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	lookup.Blocked = CheckBlackList(lookup.Ip)
+	lookup.verify()
 
 	buf, err := json.Marshal(lookup)
 	if err != nil {
@@ -115,4 +115,14 @@ func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	w.Write(buf)
+}
+
+func (lookup *Lookup) verify() {
+	if false == lookup.Blocked && "" != lookup.Email {
+		lookup.Blocked = !ValidateEmail(lookup.Email)
+	}
+
+	if false == lookup.Blocked && "" != lookup.Ip {
+		lookup.Blocked = CheckBlackList(lookup.Ip)
+	}
 }

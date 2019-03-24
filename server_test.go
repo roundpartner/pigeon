@@ -114,3 +114,25 @@ func TestVerifyIpIsNotBlocked(t *testing.T) {
 		t.FailNow()
 	}
 }
+
+func TestVerifyEmailIsNotBlocked(t *testing.T) {
+	body := strings.NewReader(`{"email":"tester@mailinator.com"}`)
+	rr := httptest.NewRecorder()
+	req, _ := http.NewRequest("POST", "/verify", body)
+
+	rs := NewRestServer()
+	rs.Router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("Service did not return ok status")
+		t.FailNow()
+	}
+	if "application/json; charset=utf-8" != rr.Header().Get("Content-Type") {
+		t.Fatalf("Service did not return json header")
+		t.FailNow()
+	}
+	if `{"email":"tester@mailinator.com","ip":"","blocked":false}` != rr.Body.String() {
+		t.Fatalf("Unexpected body returned: %s", rr.Body.String())
+		t.FailNow()
+	}
+}
