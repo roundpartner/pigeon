@@ -59,3 +59,11 @@ curl -X POST http://localhost:3411/template \
         }
     }"
 ```
+### Verify Email
+```bash
+curl -X POST http://localhost:3411/verify \
+-d "{
+        \"email\": \"tester@mailinator.com\",
+        \"ip\": \"127.0.0.1\"
+    }"
+```

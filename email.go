@@ -99,6 +99,10 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		log.Printf("Error: ReplyTo address has been blacklisted\n")
 		return errors.New("black listed email")
 	}
+	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.To) {
+		log.Printf("Error: From address has been blacklisted\n")
+		return errors.New("black listed sender email")
+	}
 	if nil != ms.BlackListedContent {
 		if ms.BlackListedContent.MatchString(msg.Text) {
 			log.Printf("Error: Text has been blacklisted\n")

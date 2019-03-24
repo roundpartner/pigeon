@@ -101,6 +101,21 @@ func TestReplyToEmailBlocked(t *testing.T) {
 	}
 }
 
+func TestSenderEmailIsBlocked(t *testing.T) {
+	os.Setenv("BLACK_LISTED_ADDRESSES", `tester@mailinator\.com$`)
+	service := NewMailService()
+	message := Message{From: FromEmail, To: "tester@mailinator.com", ReplyTo: "test@mailinator.com", Subject: "Blocked Message", Text: "This tests that messages can be blocked"}
+	err := service.SendEmail(&message)
+	os.Unsetenv("BLACK_LISTED_ADDRESSES")
+	if err == nil {
+		t.FailNow()
+	}
+	if "black listed sender email" != err.Error() {
+		t.Errorf("Error: %s", err.Error())
+		t.FailNow()
+	}
+}
+
 func TestContentEmailBlocked(t *testing.T) {
 	os.Setenv("BLACK_LISTED_CONTENT", `blocked|test`)
 	service := NewMailService()
