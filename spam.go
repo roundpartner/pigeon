@@ -13,6 +13,7 @@ func CheckBlackList(ip string) bool {
 		"sbl.spamhaus.org",
 		"xbl.spamhaus.org",
 		"spam.spamrats.com",
+		"all.s5h.net",
 	}
 	for _, source := range blacklists {
 		result := godnsbl.Lookup(source, lookup.Ip)
