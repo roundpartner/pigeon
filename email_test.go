@@ -140,7 +140,7 @@ func TestContentEmailBlockedIgnoresCase(t *testing.T) {
 		"THIS IS ANOTHER STRING",
 	}
 
-	os.Setenv("BLACK_LISTED_CONTENT", `(?i)blocked|other`)
+	os.Setenv("BLACK_LISTED_CONTENT", `blocked|other`)
 	service := NewMailService()
 
 	for _, element := range blockList {
