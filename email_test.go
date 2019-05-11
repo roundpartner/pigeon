@@ -132,17 +132,28 @@ func TestContentEmailBlocked(t *testing.T) {
 }
 
 func TestContentEmailBlockedIgnoresCase(t *testing.T) {
-	os.Setenv("BLACK_LISTED_CONTENT", `blocked`)
-	service := NewMailService()
-	message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "THIS MESSAGE WILL BE BLOCKED BY THIS TEST", Text: "This tests that messages can be blocked when keywords are being filtered"}
-	err := service.SendEmail(&message)
-	os.Unsetenv("BLACK_LISTED_CONTENT")
-	if err == nil {
-		t.FailNow()
+	blockList := []string{
+		"lowercase blocked string",
+		"Title Case Blocked String",
+		"UPPERCASE BLOCKED STRING",
+		"RaNdOm CaSe BlOcKeD sTrInG",
+		"THIS IS ANOTHER STRING",
 	}
-	if "black listed phrase" != err.Error() {
-		t.Errorf("Error: %s", err.Error())
-		t.FailNow()
+
+	os.Setenv("BLACK_LISTED_CONTENT", `(?i)blocked|other`)
+	service := NewMailService()
+
+	for _, element := range blockList {
+		message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "This is a subject", Text: element}
+		err := service.SendEmail(&message)
+		os.Unsetenv("BLACK_LISTED_CONTENT")
+		if err == nil {
+			t.FailNow()
+		}
+		if "black listed phrase" != err.Error() {
+			t.Errorf("Error: %s", err.Error())
+			t.FailNow()
+		}
 	}
 }
 
