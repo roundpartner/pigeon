@@ -157,6 +157,30 @@ func TestContentEmailBlockedIgnoresCase(t *testing.T) {
 	}
 }
 
+func TestContentEmailBlockedRegex(t *testing.T) {
+	blockList := []string{
+		"Two Words",
+		"TwoTogether",
+		"a href=",
+	}
+
+	os.Setenv("BLACK_LISTED_CONTENT", `a href=|two ?(words|together)|single`)
+	service := NewMailService()
+
+	for _, element := range blockList {
+		message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "This is a subject", Text: element}
+		err := service.SendEmail(&message)
+		os.Unsetenv("BLACK_LISTED_CONTENT")
+		if err == nil {
+			t.FailNow()
+		}
+		if "black listed phrase" != err.Error() {
+			t.Errorf("Error: %s", err.Error())
+			t.FailNow()
+		}
+	}
+}
+
 func TestContentEmailEmptyBlackList(t *testing.T) {
 	os.Setenv("BLACK_LISTED_CONTENT", ``)
 	service := NewMailService()

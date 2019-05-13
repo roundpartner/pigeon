@@ -88,29 +88,29 @@ func (ms *MailService) QueueEmail(message *Message) {
 
 func (ms *MailService) SendEmail(msg *Message) error {
 	if msg.To == "" {
-		log.Printf("Error: To address is required for sending emails\n")
+		log.Printf("[ERROR] [%s] To address is required for sending emails", ServiceName)
 		return errors.New("missing param: to address not set")
 	}
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.From) {
-		log.Printf("Error: From address has been blacklisted\n")
+		log.Printf("[ERROR] [%s] From address has been blacklisted\n", ServiceName)
 		return errors.New("black listed email")
 	}
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.ReplyTo) {
-		log.Printf("Error: ReplyTo address has been blacklisted\n")
+		log.Printf("[ERROR] [%s] ReplyTo address has been blacklisted", ServiceName)
 		return errors.New("black listed email")
 	}
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.To) {
-		log.Printf("Error: From address has been blacklisted\n")
+		log.Printf("[ERROR] [%s] From address has been blacklisted", ServiceName)
 		return errors.New("black listed sender email")
 	}
 	if nil != ms.BlackListedContent {
 		if ms.BlackListedContent.MatchString(msg.Text) {
-			log.Printf("Error: Text has been blacklisted\n")
+			log.Printf("[ERROR] [%s] Text has been blacklisted", ServiceName)
 			return errors.New("black listed phrase")
 		}
 	}
 	if msg.SenderIp != "" && CheckBlackList(msg.SenderIp) {
-		log.Printf("Error: sender ip has been blacklisted\n")
+		log.Printf("[ERROR] [%s] sender ip has been blacklisted", ServiceName)
 		return errors.New("black listed ip")
 	}
 	message := ms.Service.NewMessage(
@@ -125,6 +125,7 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		message.SetReplyTo(msg.ReplyTo)
 	}
 	message.SetTracking(msg.Track)
+	log.Printf("[INFO] [%s] Sending email", ServiceName)
 	return ms.send(message)
 }
 
