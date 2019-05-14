@@ -51,7 +51,7 @@ func NewMailService() *MailService {
 		mg.SetAPIBase(mailgun.ApiBase)
 	}
 	if err != nil {
-		log.Printf("Error: %s", err.Error())
+		log.Printf("[INFO] [%s] %s", ServiceName, err.Error())
 		os.Exit(1)
 	}
 	testMode := os.Getenv("TEST_MODE")
@@ -92,25 +92,25 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		return errors.New("missing param: to address not set")
 	}
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.From) {
-		log.Printf("[ERROR] [%s] From address has been blacklisted\n", ServiceName)
+		log.Printf("[INFO] [%s] From address has been blacklisted\n", ServiceName)
 		return errors.New("black listed email")
 	}
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.ReplyTo) {
-		log.Printf("[ERROR] [%s] ReplyTo address has been blacklisted", ServiceName)
+		log.Printf("[INFO] [%s] ReplyTo address has been blacklisted", ServiceName)
 		return errors.New("black listed email")
 	}
 	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.To) {
-		log.Printf("[ERROR] [%s] From address has been blacklisted", ServiceName)
+		log.Printf("[INFO] [%s] From address has been blacklisted", ServiceName)
 		return errors.New("black listed sender email")
 	}
 	if nil != ms.BlackListedContent {
 		if ms.BlackListedContent.MatchString(msg.Text) {
-			log.Printf("[ERROR] [%s] Text has been blacklisted", ServiceName)
+			log.Printf("[INFO] [%s] Text has been blacklisted", ServiceName)
 			return errors.New("black listed phrase")
 		}
 	}
 	if msg.SenderIp != "" && CheckBlackList(msg.SenderIp) {
-		log.Printf("[ERROR] [%s] sender ip has been blacklisted", ServiceName)
+		log.Printf("[INFO] [%s] sender ip has been blacklisted", ServiceName)
 		return errors.New("black listed ip")
 	}
 	message := ms.Service.NewMessage(
@@ -131,12 +131,12 @@ func (ms *MailService) SendEmail(msg *Message) error {
 
 func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 	if msg.To == "" {
-		log.Printf("Error: To address is required for sending emails\n")
+		log.Printf("[ERROR] [%s] To address is required for sending emails", ServiceName)
 		return errors.New("missing param: to address not set")
 	}
 	err := ms.AssembleTemplate(msg)
 	if err != nil {
-		log.Printf("Error: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
 		return err
 	}
 	if ms.TestMode {
@@ -162,7 +162,7 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 func (ms *MailService) AssembleTemplate(msg *Message) error {
 	emailTpl, err := ms.templateManager.ImportTemplate(msg.Template)
 	if err != nil {
-		log.Printf("Error: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
 		return err
 	}
 
@@ -176,7 +176,7 @@ func (ms *MailService) AssembleTemplate(msg *Message) error {
 
 	text, err := AssembleTemplate(emailTpl.Text, msg)
 	if err != nil {
-		log.Printf("Error: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
 		return err
 	}
 	msg.Text = text
@@ -184,7 +184,7 @@ func (ms *MailService) AssembleTemplate(msg *Message) error {
 	if nil != emailTpl.Html {
 		html, err := AssembleTemplate(emailTpl.Html, msg)
 		if err != nil {
-			log.Printf("Error: %s\n", err.Error())
+			log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
 			return err
 		}
 		msg.Html = html
@@ -201,9 +201,9 @@ func (ms *MailService) send(message *mailgun.Message) error {
 	resp, id, err := ms.Service.Send(message)
 
 	if err != nil {
-		log.Printf("Error: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
 		return err
 	}
-	log.Printf("ID: %s Resp: %s\n", id, resp)
+	log.Printf("[ERROR] [%s] ID: %s Resp: %s\n", ServiceName, id, resp)
 	return err
 }
