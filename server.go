@@ -103,6 +103,7 @@ func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	log.Printf("[INFO] looking up email=\"%s\" ip=\"%s\"", lookup.Email, lookup.Ip)
 	lookup.verify()
 
 	buf, err := json.Marshal(lookup)
