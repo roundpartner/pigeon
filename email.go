@@ -113,20 +113,8 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		log.Printf("[INFO] [%s] sender ip has been blacklisted", ServiceName)
 		return errors.New("black listed ip")
 	}
-	message := ms.Service.NewMessage(
-		msg.From,
-		msg.Subject,
-		msg.Text,
-		msg.To)
-	if "" != msg.Html {
-		message.SetHtml(msg.Html)
-	}
-	if "" != msg.ReplyTo {
-		message.SetReplyTo(msg.ReplyTo)
-	}
-	message.SetTracking(msg.Track)
-	log.Printf("[INFO] [%s] Sending email", ServiceName)
-	return ms.send(message)
+
+	return ms.sendEmail(msg)
 }
 
 func (ms *MailService) SendTemplatedEmail(msg *Message) error {
@@ -139,6 +127,10 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
 		return err
 	}
+	return ms.sendEmail(msg)
+}
+
+func (ms *MailService) sendEmail(msg *Message) error {
 	if ms.TestMode {
 		log.Printf("----------\nSubject: %s\nText: %s\nHtml: %s\n----------\n", msg.Subject, msg.Text, msg.Html)
 	}
@@ -147,7 +139,6 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 		msg.Subject,
 		msg.Text,
 		msg.To)
-
 	if "" != msg.Html {
 		message.SetHtml(msg.Html)
 	}
@@ -155,7 +146,7 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 		message.SetReplyTo(msg.ReplyTo)
 	}
 	message.SetTracking(msg.Track)
-
+	log.Printf("[INFO] [%s] Sending email to %s from %s", ServiceName, msg.To, msg.From)
 	return ms.send(message)
 }
 
@@ -204,6 +195,6 @@ func (ms *MailService) send(message *mailgun.Message) error {
 		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
 		return err
 	}
-	log.Printf("[ERROR] [%s] ID: %s Resp: %s\n", ServiceName, id, resp)
+	log.Printf("[INFO] [%s] ID: %s Resp: %s\n", ServiceName, id, resp)
 	return err
 }
