@@ -16,7 +16,7 @@ func ListenAndServe(port int) {
 
 	ShutdownGracefully(server)
 
-	log.Printf("Server starting on port %d\n", port)
+	log.Printf("[INFO] [%s] Server starting on port %d", ServiceName, port)
 	err := server.ListenAndServe()
 	if nil != err {
 		log.Println(err.Error())
@@ -41,17 +41,17 @@ func NewRestServer() *RestServer {
 }
 
 func (rs *RestServer) SendEmail(w http.ResponseWriter, req *http.Request) {
-	log.Printf("[INFO] Received request to send email")
+	log.Printf("[INFO] [%s] Received request to send email", ServiceName)
 	decoder := json.NewDecoder(req.Body)
 	msg := &Message{}
 	err := decoder.Decode(msg)
 	if err != nil {
-		log.Printf("[ERROR] Bad Request: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] Bad Request: %s", ServiceName, err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if msg.To == "" {
-		log.Printf("[ERROR] Bad Request: To address is required\n")
+		log.Printf("[ERROR] [%s] Bad Request: To address is required", ServiceName)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -60,24 +60,24 @@ func (rs *RestServer) SendEmail(w http.ResponseWriter, req *http.Request) {
 }
 
 func (rs *RestServer) ViewTemplate(w http.ResponseWriter, req *http.Request) {
-	log.Printf("[INFO] Received request to view template")
+	log.Printf("[INFO] [%s] Received request to view template", ServiceName)
 	decoder := json.NewDecoder(req.Body)
 	msg := &Message{}
 	err := decoder.Decode(msg)
 	if err != nil {
-		log.Printf("[ERROR] Bad Request: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] Bad Request: %s\n", ServiceName, err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	err = rs.Mail.AssembleTemplate(msg)
 	if err != nil {
-		log.Printf("[ERROR] Bad Request: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] Bad Request: %s\n", ServiceName, err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	buf, err := json.Marshal(msg)
 	if err != nil {
-		log.Printf("[ERROR] Marshal Error: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] Marshal Error: %s\n", ServiceName, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -93,7 +93,7 @@ type Lookup struct {
 }
 
 func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
-	log.Printf("[INFO] Received request to verify email")
+	log.Printf("[INFO] [%s] Received request to verify email", ServiceName)
 	decoder := json.NewDecoder(req.Body)
 	lookup := &Lookup{}
 	err := decoder.Decode(lookup)
@@ -103,12 +103,12 @@ func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	log.Printf("[INFO] looking up email=\"%s\" ip=\"%s\"", lookup.Email, lookup.Ip)
+	log.Printf("[INFO] [%s] Looking up email=\"%s\" ip=\"%s\"", ServiceName, lookup.Email, lookup.Ip)
 	lookup.verify()
 
 	buf, err := json.Marshal(lookup)
 	if err != nil {
-		log.Printf("[ERROR] Marshal Error: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] Marshal Error: %s\n", ServiceName, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
