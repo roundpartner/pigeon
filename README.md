@@ -6,7 +6,7 @@ A Comms Micro Service
 Provides end points for sending communication such as Email
 ## Prerequisite
 ```bash
-docker run -d -p 783:783 dinkel/spamassassin
+dep ensure
 ```
 # Usage
 ```bash
