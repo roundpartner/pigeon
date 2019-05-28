@@ -151,7 +151,7 @@ func (ms *MailService) sendEmail(msg *Message) error {
 }
 
 func (ms *MailService) AssembleTemplate(msg *Message) error {
-	log.Printf("[INFO] Assemblying template \"%s\"", msg.Template)
+	log.Printf("[INFO] Assembling template \"%s\"", msg.Template)
 	emailTpl, err := ms.templateManager.ImportTemplate(msg.Template)
 	if err != nil {
 		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
