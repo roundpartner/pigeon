@@ -161,7 +161,7 @@ func TestContentEmailBlockedRegex(t *testing.T) {
 	blockList := []string{
 		"Two Words",
 		"TwoTogether",
-		"a href=",
+		"&lt;a href=https",
 	}
 
 	os.Setenv("BLACK_LISTED_CONTENT", `a href=|two ?(words|together)|single`)
