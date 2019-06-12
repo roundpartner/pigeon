@@ -98,7 +98,7 @@ func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
 	lookup := &Lookup{}
 	err := decoder.Decode(lookup)
 	if err != nil {
-		log.Printf("[ERROR] Bad Request: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] Bad Request: %s\n", ServiceName, err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -111,6 +111,9 @@ func (rs *RestServer) VerifyAddress(w http.ResponseWriter, req *http.Request) {
 		log.Printf("[ERROR] [%s] Marshal Error: %s\n", ServiceName, err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
+	}
+	if lookup.Blocked {
+		log.Printf("[INFO] [%s] Should be blocked email=\"%s\" ip=\"%s\"", ServiceName, lookup.Email, lookup.Ip)
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

@@ -146,7 +146,11 @@ func (ms *MailService) sendEmail(msg *Message) error {
 		message.SetReplyTo(msg.ReplyTo)
 	}
 	message.SetTracking(msg.Track)
-	log.Printf("[INFO] [%s] Sending email to %s from %s", ServiceName, msg.To, msg.From)
+	if msg.ReplyTo == "" {
+		log.Printf("[INFO] [%s] Sending email to %s from %s", ServiceName, msg.To, msg.From)
+	} else {
+		log.Printf("[INFO] [%s] Sending email to %s from %s (reply to %s)", ServiceName, msg.To, msg.From, msg.ReplyTo)
+	}
 	return ms.send(message)
 }
 
