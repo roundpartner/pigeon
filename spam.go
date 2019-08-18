@@ -30,7 +30,7 @@ func CheckBlackList(ip string) bool {
 func CheckAkismet(msg *Message) bool {
 	akismetKey, isSet := os.LookupEnv("AKISMET_KEY")
 	if isSet == false {
-		log.Printf("[INFO] AKISMET_KEY is not set")
+		log.Printf("[INFO] [%s] AKISMET_KEY is not set", ServiceName)
 		return false
 	}
 	isSpam, err := akismet.Check(&akismet.Comment{
@@ -44,7 +44,7 @@ func CheckAkismet(msg *Message) bool {
 	}, akismetKey)
 
 	if err != nil {
-		log.Printf("[ERROR] Akismet error: %s", err.Error())
+		log.Printf("[ERROR] [%s] Akismet error: %s", ServiceName, err.Error())
 		return false
 	}
 	return isSpam

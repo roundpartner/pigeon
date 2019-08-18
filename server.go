@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/roundpartner/go/ha"
 	"log"
 	"net/http"
 )
@@ -14,7 +15,7 @@ func ListenAndServe(port int) {
 	rs := NewRestServer()
 	server := &http.Server{Addr: address, Handler: rs.Router}
 
-	ShutdownGracefully(server)
+	ha.GracefulShutdown(server, ServiceName)
 
 	log.Printf("[INFO] [%s] Server starting on port %d", ServiceName, port)
 	err := server.ListenAndServe()
@@ -32,7 +33,7 @@ type RestServer struct {
 func NewRestServer() *RestServer {
 	rs := &RestServer{}
 	rs.Router = mux.NewRouter()
-	Check(rs.Router)
+	ha.Check(rs.Router)
 	rs.Router.HandleFunc("/email", rs.SendEmail).Methods("POST")
 	rs.Router.HandleFunc("/template", rs.ViewTemplate).Methods("POST")
 	rs.Router.HandleFunc("/verify", rs.VerifyAddress).Methods("POST")
