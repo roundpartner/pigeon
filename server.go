@@ -13,6 +13,8 @@ func ListenAndServe(port int) {
 	address := fmt.Sprintf(":%d", port)
 
 	rs := NewRestServer()
+	spoolService = NewSpoolService(rs.Mail)
+	go StartSQSSpool()
 	server := &http.Server{Addr: address, Handler: rs.Router}
 
 	ha.GracefulShutdown(server, ServiceName)
