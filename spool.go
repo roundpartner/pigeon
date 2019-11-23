@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"log"
 	"time"
@@ -62,7 +63,16 @@ func PollSqsMessage() {
 }
 
 func ProcessSQSMessage(msg *sqs.Message) {
-	buf := bytes.NewBufferString(*msg.Body).Bytes()
+	snsMsg := &sns.PublishInput{}
+	if err := json.Unmarshal(bytes.NewBufferString(*msg.Body).Bytes(), snsMsg); err != nil {
+		log.Printf("[ERROR] [%s] SQS Error: %s", ServiceName, err.Error())
+		return
+	}
+	if snsMsg.Message == nil {
+		log.Printf("[ERROR] [%s] No message body", ServiceName)
+		return
+	}
+	buf := bytes.NewBufferString(*snsMsg.Message).Bytes()
 	emsg := &Message{}
 	err := json.Unmarshal(buf, emsg)
 	if nil != err {
