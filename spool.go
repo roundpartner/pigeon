@@ -27,6 +27,10 @@ var queue *sqs.SQS
 var queueName string
 
 func StartSQSSpool() {
+	_, err := GetQueueName()
+	if err != nil {
+		return
+	}
 	for {
 		time.Sleep(time.Minute)
 		PollSqsMessage()
