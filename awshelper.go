@@ -42,5 +42,9 @@ func GetQueueName() (string, error) {
 		log.Printf("[ERROR] [%s] %s", ServiceName, "Queue not set")
 		return "", errors.New("queue not set")
 	}
+	if queue == "" {
+		log.Printf("[ERROR] [%s] %s", ServiceName, "Queue not set")
+		return "", errors.New("queue not set")
+	}
 	return queue, nil
 }
