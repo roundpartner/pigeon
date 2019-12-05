@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 )
 
 type Message struct {
@@ -62,6 +63,7 @@ func NewMailService() *MailService {
 	}
 	blackListedContent, isSet := os.LookupEnv("BLACK_LISTED_CONTENT")
 	if isSet && "" != blackListedContent {
+		blackListedContent = strings.Trim(blackListedContent, "|")
 		service.BlackListedContent = regexp.MustCompile("(?i)" + blackListedContent)
 	}
 	service.run()
