@@ -131,6 +131,23 @@ func TestContentEmailBlocked(t *testing.T) {
 	}
 }
 
+func TestContentEmailBlockedIgnoreTrailingPipe(t *testing.T) {
+	blockList := []string{
+		"this string will not get blocked",
+	}
+
+	os.Setenv("BLACK_LISTED_CONTENT", `|a|`)
+	service := NewMailService()
+	for _, element := range blockList {
+		message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "This is a subject", Text: element}
+		err := service.SendEmail(&message)
+		os.Unsetenv("BLACK_LISTED_CONTENT")
+		if err != nil {
+			t.FailNow()
+		}
+	}
+}
+
 func TestContentEmailBlockedIgnoresCase(t *testing.T) {
 	blockList := []string{
 		"lowercase blocked string",
