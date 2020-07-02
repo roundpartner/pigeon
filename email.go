@@ -29,12 +29,12 @@ type Message struct {
 }
 
 type MailService struct {
-	Service            mailgun.Mailgun
-	TestMode           bool
-	Messages           chan *Message
-	templateManager    *TemplateManager
-	BlackListedAddress *regexp.Regexp
-	BlackListedContent *regexp.Regexp
+	Service          mailgun.Mailgun
+	TestMode         bool
+	Messages         chan *Message
+	templateManager  *TemplateManager
+	BlockListAddress *regexp.Regexp
+	BlockListContent *regexp.Regexp
 }
 
 func NewMailService() *MailService {
@@ -57,14 +57,14 @@ func NewMailService() *MailService {
 	}
 	testMode := os.Getenv("TEST_MODE")
 	service := &MailService{Service: mg, TestMode: "" != testMode, templateManager: NewTemplateManager()}
-	blackListedAddress, isSet := os.LookupEnv("BLACK_LISTED_ADDRESSES")
-	if isSet && "" != blackListedAddress {
-		service.BlackListedAddress = regexp.MustCompile(blackListedAddress)
+	blockListAddress, isSet := os.LookupEnv("BLACK_LISTED_ADDRESSES")
+	if isSet && "" != blockListAddress {
+		service.BlockListAddress = regexp.MustCompile(blockListAddress)
 	}
-	blackListedContent, isSet := os.LookupEnv("BLACK_LISTED_CONTENT")
-	if isSet && "" != blackListedContent {
-		blackListedContent = strings.Trim(blackListedContent, "|")
-		service.BlackListedContent = regexp.MustCompile("(?i)" + blackListedContent)
+	blockListContent, isSet := os.LookupEnv("BLACK_LISTED_CONTENT")
+	if isSet && "" != blockListContent {
+		blockListContent = strings.Trim(blockListContent, "|")
+		service.BlockListContent = regexp.MustCompile("(?i)" + blockListContent)
 	}
 	service.run()
 	return service
@@ -93,26 +93,26 @@ func (ms *MailService) SendEmail(msg *Message) error {
 		log.Printf("[ERROR] [%s] To address is required for sending emails", ServiceName)
 		return errors.New("missing param: to address not set")
 	}
-	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.From) {
-		log.Printf("[INFO] [%s] From address has been blacklisted\n", ServiceName)
+	if nil != ms.BlockListAddress && ms.BlockListAddress.MatchString(msg.From) {
+		log.Printf("[INFO] [%s] From address has been blocked\n", ServiceName)
 		return errors.New("black listed email")
 	}
-	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.ReplyTo) {
-		log.Printf("[INFO] [%s] ReplyTo address has been blacklisted", ServiceName)
+	if nil != ms.BlockListAddress && ms.BlockListAddress.MatchString(msg.ReplyTo) {
+		log.Printf("[INFO] [%s] ReplyTo address has been blocked", ServiceName)
 		return errors.New("black listed email")
 	}
-	if nil != ms.BlackListedAddress && ms.BlackListedAddress.MatchString(msg.To) {
-		log.Printf("[INFO] [%s] From address has been blacklisted", ServiceName)
+	if nil != ms.BlockListAddress && ms.BlockListAddress.MatchString(msg.To) {
+		log.Printf("[INFO] [%s] From address has been blocked", ServiceName)
 		return errors.New("black listed sender email")
 	}
-	if nil != ms.BlackListedContent {
-		if ms.BlackListedContent.MatchString(msg.Text) {
-			log.Printf("[INFO] [%s] Text has been blacklisted", ServiceName)
+	if nil != ms.BlockListContent {
+		if ms.BlockListContent.MatchString(msg.Text) {
+			log.Printf("[INFO] [%s] Text has been blocked", ServiceName)
 			return errors.New("black listed phrase")
 		}
 	}
-	if msg.SenderIp != "" && CheckBlackList(msg.SenderIp) {
-		log.Printf("[INFO] [%s] sender ip has been blacklisted", ServiceName)
+	if msg.SenderIp != "" && CheckBlockList(msg.SenderIp) {
+		log.Printf("[INFO] [%s] sender ip has been blocked", ServiceName)
 		return errors.New("black listed ip")
 	}
 
@@ -126,12 +126,12 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 	}
 	err := ms.AssembleTemplate(msg)
 	if err != nil {
-		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
+		log.Printf("[ERROR] [%s] %s", ServiceName, err.Error())
 		return err
 	}
-	if nil != ms.BlackListedContent {
-		if ms.BlackListedContent.MatchString(msg.Text) || ms.BlackListedContent.MatchString(msg.Html) {
-			log.Printf("[INFO] [%s] Text has been blacklisted", ServiceName)
+	if nil != ms.BlockListContent {
+		if ms.BlockListContent.MatchString(msg.Text) || ms.BlockListContent.MatchString(msg.Html) {
+			log.Printf("[INFO] [%s] Text has been blocked", ServiceName)
 			return errors.New("black listed phrase")
 		}
 	}

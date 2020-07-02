@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestCheckBlackList(t *testing.T) {
+func TestCheckBlockList(t *testing.T) {
 	FromEmail = os.Getenv("FROM_EMAIL")
 	ToEmail = os.Getenv("TO_EMAIL")
 	m := &Message{
@@ -15,7 +15,7 @@ func TestCheckBlackList(t *testing.T) {
 		Text:     "Hello world",
 		SenderIp: "127.0.0.1",
 	}
-	CheckBlackList(m.SenderIp)
+	CheckBlockList(m.SenderIp)
 }
 
 func TestCheckAkismet(t *testing.T) {

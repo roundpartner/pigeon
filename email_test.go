@@ -198,7 +198,7 @@ func TestContentEmailBlockedRegex(t *testing.T) {
 	}
 }
 
-func TestContentEmailEmptyBlackList(t *testing.T) {
+func TestContentEmailEmptyBlockList(t *testing.T) {
 	os.Setenv("BLACK_LISTED_CONTENT", ``)
 	service := NewMailService()
 	message := Message{From: FromEmail, ReplyTo: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}

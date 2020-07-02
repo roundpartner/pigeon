@@ -130,6 +130,6 @@ func (lookup *Lookup) verify() {
 	}
 
 	if false == lookup.Blocked && "" != lookup.Ip {
-		lookup.Blocked = CheckBlackList(lookup.Ip)
+		lookup.Blocked = CheckBlockList(lookup.Ip)
 	}
 }

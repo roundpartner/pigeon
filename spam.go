@@ -7,15 +7,15 @@ import (
 	"os"
 )
 
-func CheckBlackList(ip string) bool {
+func CheckBlockList(ip string) bool {
 	lookup := Lookup{Ip: ip}
-	blacklists := []string{
+	blocklists := []string{
 		"sbl.spamhaus.org",
 		"xbl.spamhaus.org",
 		"spam.spamrats.com",
 		"all.s5h.net",
 	}
-	for _, source := range blacklists {
+	for _, source := range blocklists {
 		result := godnsbl.Lookup(source, lookup.Ip)
 		if len(result.Results) > 0 {
 			lookup.Blocked = result.Results[0].Listed
