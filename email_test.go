@@ -277,6 +277,32 @@ func TestSendTemplatedEmailRequiresTo(t *testing.T) {
 	}
 }
 
+func TestSendTemplatedEmailWithBlockedContent(t *testing.T) {
+	blockList := []string{
+		"Two Words",
+		"TwoTogether",
+		"&lt;a href=https",
+	}
+
+	os.Setenv("BLACK_LISTED_CONTENT", `a href=|two ?(words|together)|single`)
+	service := NewMailService()
+
+	for _, element := range blockList {
+		params := map[string]interface{}{"content": element}
+		message := Message{To: ToEmail, Subject: "Queued Message", Template: "test", Params: params}
+		err := service.SendTemplatedEmail(&message)
+		os.Unsetenv("BLACK_LISTED_CONTENT")
+		if err == nil {
+			t.Errorf("Expecting a black listed phrase error")
+			t.FailNow()
+		}
+		if "black listed phrase" != err.Error() {
+			t.Errorf("Error: %s", err.Error())
+			t.FailNow()
+		}
+	}
+}
+
 func TestQueueTemplatedEmail(t *testing.T) {
 	service := NewMailService()
 

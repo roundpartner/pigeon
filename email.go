@@ -129,6 +129,13 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
 		return err
 	}
+	if nil != ms.BlackListedContent {
+		if ms.BlackListedContent.MatchString(msg.Text) || ms.BlackListedContent.MatchString(msg.Html) {
+			log.Printf("[INFO] [%s] Text has been blacklisted", ServiceName)
+			return errors.New("black listed phrase")
+		}
+	}
+
 	return ms.sendEmail(msg)
 }
 
