@@ -72,60 +72,60 @@ func TestSendsEmailWithReplyTo(t *testing.T) {
 }
 
 func TestFromEmailBlocked(t *testing.T) {
-	os.Setenv("BLACK_LISTED_ADDRESSES", `\.co\.uk$`)
+	os.Setenv("BLOCK_LIST_ADDRESSES", `\.co\.uk$`)
 	service := NewMailService()
 	message := Message{From: FromEmail, To: ToEmail, Subject: "Blocked Message", Text: "This tests that messages can be blocked"}
 	err := service.SendEmail(&message)
-	os.Unsetenv("BLACK_LISTED_ADDRESSES")
+	os.Unsetenv("BLOCK_LIST_ADDRESSES")
 	if err == nil {
 		t.FailNow()
 	}
-	if "black listed email" != err.Error() {
+	if "blocked email" != err.Error() {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
 	}
 }
 
 func TestReplyToEmailBlocked(t *testing.T) {
-	os.Setenv("BLACK_LISTED_ADDRESSES", `mailinator\.com$`)
+	os.Setenv("BLOCK_LIST_ADDRESSES", `mailinator\.com$`)
 	service := NewMailService()
 	message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "Blocked Message", Text: "This tests that messages can be blocked"}
 	err := service.SendEmail(&message)
-	os.Unsetenv("BLACK_LISTED_ADDRESSES")
+	os.Unsetenv("BLOCK_LIST_ADDRESSES")
 	if err == nil {
 		t.FailNow()
 	}
-	if "black listed email" != err.Error() {
+	if "blocked email" != err.Error() {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
 	}
 }
 
 func TestSenderEmailIsBlocked(t *testing.T) {
-	os.Setenv("BLACK_LISTED_ADDRESSES", `tester@mailinator\.com$`)
+	os.Setenv("BLOCK_LIST_ADDRESSES", `tester@mailinator\.com$`)
 	service := NewMailService()
 	message := Message{From: FromEmail, To: "tester@mailinator.com", ReplyTo: "test@mailinator.com", Subject: "Blocked Message", Text: "This tests that messages can be blocked"}
 	err := service.SendEmail(&message)
-	os.Unsetenv("BLACK_LISTED_ADDRESSES")
+	os.Unsetenv("BLOCK_LIST_ADDRESSES")
 	if err == nil {
 		t.FailNow()
 	}
-	if "black listed sender email" != err.Error() {
+	if "blocked sender email" != err.Error() {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
 	}
 }
 
 func TestContentEmailBlocked(t *testing.T) {
-	os.Setenv("BLACK_LISTED_CONTENT", `blocked|test`)
+	os.Setenv("BLOCK_LIST_CONTENT", `blocked|test`)
 	service := NewMailService()
 	message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "This message will be blocked", Text: "This tests that messages can be blocked when keywords are being filtered"}
 	err := service.SendEmail(&message)
-	os.Unsetenv("BLACK_LISTED_CONTENT")
+	os.Unsetenv("BLOCK_LIST_CONTENT")
 	if err == nil {
 		t.FailNow()
 	}
-	if "black listed phrase" != err.Error() {
+	if "blocked phrase" != err.Error() {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
 	}
@@ -136,12 +136,12 @@ func TestContentEmailBlockedIgnoreTrailingPipe(t *testing.T) {
 		"this string will not get blocked",
 	}
 
-	os.Setenv("BLACK_LISTED_CONTENT", `|a|`)
+	os.Setenv("BLOCK_LIST_CONTENT", `|a|`)
 	service := NewMailService()
 	for _, element := range blockList {
 		message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "This is a subject", Text: element}
 		err := service.SendEmail(&message)
-		os.Unsetenv("BLACK_LISTED_CONTENT")
+		os.Unsetenv("BLOCK_LIST_CONTENT")
 		if err != nil {
 			t.FailNow()
 		}
@@ -157,17 +157,17 @@ func TestContentEmailBlockedIgnoresCase(t *testing.T) {
 		"THIS IS ANOTHER STRING",
 	}
 
-	os.Setenv("BLACK_LISTED_CONTENT", `blocked|other`)
+	os.Setenv("BLOCK_LIST_CONTENT", `blocked|other`)
 	service := NewMailService()
 
 	for _, element := range blockList {
 		message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "This is a subject", Text: element}
 		err := service.SendEmail(&message)
-		os.Unsetenv("BLACK_LISTED_CONTENT")
+		os.Unsetenv("BLOCK_LIST_CONTENT")
 		if err == nil {
 			t.FailNow()
 		}
-		if "black listed phrase" != err.Error() {
+		if "blocked phrase" != err.Error() {
 			t.Errorf("Error: %s", err.Error())
 			t.FailNow()
 		}
@@ -181,17 +181,17 @@ func TestContentEmailBlockedRegex(t *testing.T) {
 		"&lt;a href=https",
 	}
 
-	os.Setenv("BLACK_LISTED_CONTENT", `a href=|two ?(words|together)|single`)
+	os.Setenv("BLOCK_LIST_CONTENT", `a href=|two ?(words|together)|single`)
 	service := NewMailService()
 
 	for _, element := range blockList {
 		message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "This is a subject", Text: element}
 		err := service.SendEmail(&message)
-		os.Unsetenv("BLACK_LISTED_CONTENT")
+		os.Unsetenv("BLOCK_LIST_CONTENT")
 		if err == nil {
 			t.FailNow()
 		}
-		if "black listed phrase" != err.Error() {
+		if "blocked phrase" != err.Error() {
 			t.Errorf("Error: %s", err.Error())
 			t.FailNow()
 		}
@@ -199,11 +199,11 @@ func TestContentEmailBlockedRegex(t *testing.T) {
 }
 
 func TestContentEmailEmptyBlockList(t *testing.T) {
-	os.Setenv("BLACK_LISTED_CONTENT", ``)
+	os.Setenv("BLOCK_LIST_CONTENT", ``)
 	service := NewMailService()
 	message := Message{From: FromEmail, ReplyTo: FromEmail, To: ToEmail, Subject: "Queued Message", Text: "This tests that messages can be queued"}
 	err := service.SendEmail(&message)
-	os.Unsetenv("BLACK_LISTED_CONTENT")
+	os.Unsetenv("BLOCK_LIST_CONTENT")
 	if err != nil {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
@@ -211,15 +211,15 @@ func TestContentEmailEmptyBlockList(t *testing.T) {
 }
 
 func TestContentEmailBlockedUrl(t *testing.T) {
-	os.Setenv("BLACK_LISTED_CONTENT", `http[^ ]+http`)
+	os.Setenv("BLOCK_LIST_CONTENT", `http[^ ]+http`)
 	service := NewMailService()
 	message := Message{From: FromEmail, To: ToEmail, ReplyTo: "test@mailinator.com", Subject: "Blocked Message", Text: "This tests that messages can be http://google.com/somewhere?http://blocked.com/address when keywords are being filtered"}
 	err := service.SendEmail(&message)
-	os.Unsetenv("BLACK_LISTED_CONTENT")
+	os.Unsetenv("BLOCK_LIST_CONTENT")
 	if err == nil {
 		t.FailNow()
 	}
-	if "black listed phrase" != err.Error() {
+	if "blocked phrase" != err.Error() {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
 	}
@@ -232,7 +232,7 @@ func TestSendsEmailIpBlocked(t *testing.T) {
 	if err == nil {
 		t.FailNow()
 	}
-	if "black listed ip" != err.Error() {
+	if "blocked ip" != err.Error() {
 		t.Errorf("Error: %s", err.Error())
 		t.FailNow()
 	}
@@ -284,19 +284,19 @@ func TestSendTemplatedEmailWithBlockedContent(t *testing.T) {
 		"&lt;a href=https",
 	}
 
-	os.Setenv("BLACK_LISTED_CONTENT", `a href=|two ?(words|together)|single`)
+	os.Setenv("BLOCK_LIST_CONTENT", `a href=|two ?(words|together)|single`)
 	service := NewMailService()
 
 	for _, element := range blockList {
 		params := map[string]interface{}{"content": element}
 		message := Message{To: ToEmail, Subject: "Queued Message", Template: "test", Params: params}
 		err := service.SendTemplatedEmail(&message)
-		os.Unsetenv("BLACK_LISTED_CONTENT")
+		os.Unsetenv("BLOCK_LIST_CONTENT")
 		if err == nil {
-			t.Errorf("Expecting a black listed phrase error")
+			t.Errorf("Expecting a blocked phrase error")
 			t.FailNow()
 		}
-		if "black listed phrase" != err.Error() {
+		if "blocked phrase" != err.Error() {
 			t.Errorf("Error: %s", err.Error())
 			t.FailNow()
 		}

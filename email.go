@@ -57,11 +57,11 @@ func NewMailService() *MailService {
 	}
 	testMode := os.Getenv("TEST_MODE")
 	service := &MailService{Service: mg, TestMode: "" != testMode, templateManager: NewTemplateManager()}
-	blockListAddress, isSet := os.LookupEnv("BLACK_LISTED_ADDRESSES")
+	blockListAddress, isSet := os.LookupEnv("BLOCK_LIST_ADDRESSES")
 	if isSet && "" != blockListAddress {
 		service.BlockListAddress = regexp.MustCompile(blockListAddress)
 	}
-	blockListContent, isSet := os.LookupEnv("BLACK_LISTED_CONTENT")
+	blockListContent, isSet := os.LookupEnv("BLOCK_LIST_CONTENT")
 	if isSet && "" != blockListContent {
 		blockListContent = strings.Trim(blockListContent, "|")
 		service.BlockListContent = regexp.MustCompile("(?i)" + blockListContent)
@@ -95,25 +95,25 @@ func (ms *MailService) SendEmail(msg *Message) error {
 	}
 	if nil != ms.BlockListAddress && ms.BlockListAddress.MatchString(msg.From) {
 		log.Printf("[INFO] [%s] From address has been blocked\n", ServiceName)
-		return errors.New("black listed email")
+		return errors.New("blocked email")
 	}
 	if nil != ms.BlockListAddress && ms.BlockListAddress.MatchString(msg.ReplyTo) {
 		log.Printf("[INFO] [%s] ReplyTo address has been blocked", ServiceName)
-		return errors.New("black listed email")
+		return errors.New("blocked email")
 	}
 	if nil != ms.BlockListAddress && ms.BlockListAddress.MatchString(msg.To) {
 		log.Printf("[INFO] [%s] From address has been blocked", ServiceName)
-		return errors.New("black listed sender email")
+		return errors.New("blocked sender email")
 	}
 	if nil != ms.BlockListContent {
 		if ms.BlockListContent.MatchString(msg.Text) {
 			log.Printf("[INFO] [%s] Text has been blocked", ServiceName)
-			return errors.New("black listed phrase")
+			return errors.New("blocked phrase")
 		}
 	}
 	if msg.SenderIp != "" && CheckBlockList(msg.SenderIp) {
 		log.Printf("[INFO] [%s] sender ip has been blocked", ServiceName)
-		return errors.New("black listed ip")
+		return errors.New("blocked ip")
 	}
 
 	return ms.sendEmail(msg)
@@ -132,7 +132,7 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 	if nil != ms.BlockListContent {
 		if ms.BlockListContent.MatchString(msg.Text) || ms.BlockListContent.MatchString(msg.Html) {
 			log.Printf("[INFO] [%s] Text has been blocked", ServiceName)
-			return errors.New("black listed phrase")
+			return errors.New("blocked phrase")
 		}
 	}
 
