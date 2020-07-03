@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/lambda"
 	"gopkg.in/mailgun/mailgun-go.v1"
 	"log"
 	"os"
@@ -24,6 +29,7 @@ type Message struct {
 	Website   string                 `json:"website,omitempty"`
 	Params    map[string]interface{} `json:"params"`
 	Report    bool                   `json:"report,omitempty"`
+	TestMode  bool                   `json:"test_mode,omitempty"`
 	IsSpam    bool
 	SpamScore float64
 }
@@ -139,10 +145,38 @@ func (ms *MailService) SendTemplatedEmail(msg *Message) error {
 	return ms.sendEmail(msg)
 }
 
+func (ms *MailService) sendLambdaEmail(msg *Message) error {
+	if ms.TestMode {
+		msg.TestMode = true
+	}
+	buf, err := json.Marshal(msg)
+	if err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+		return nil
+	}
+	svc := lambda.New(GetAWSSession())
+
+	input := &lambda.InvokeInput{
+		FunctionName:   aws.String("dove-email"),
+		InvocationType: aws.String("RequestResponse"),
+		Payload:        buf,
+	}
+
+	_, err = svc.InvokeWithContext(context.Background(), input)
+	return err
+}
+
 func (ms *MailService) sendEmail(msg *Message) error {
 	if ms.TestMode {
 		log.Printf("----------\nSubject: %s\nText: %s\nHtml: %s\n----------\n", msg.Subject, msg.Text, msg.Html)
 	}
+
+	err := ms.sendLambdaEmail(msg)
+	if err == nil {
+		return nil
+	}
+	log.Printf("[ERROR] Lambda: %s", err.Error())
+
 	message := ms.Service.NewMessage(
 		msg.From,
 		msg.Subject,
