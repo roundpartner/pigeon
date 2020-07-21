@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/roundpartner/pigeon.svg?branch=master)](https://travis-ci.org/roundpartner/pigeon)
 [![Go Report Card](https://goreportcard.com/badge/github.com/roundpartner/pigeon)](https://goreportcard.com/report/github.com/roundpartner/pigeon)
 # Pigeon
 A Comms Micro Service
