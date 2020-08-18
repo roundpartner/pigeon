@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"gopkg.in/mailgun/mailgun-go.v1"
@@ -44,12 +43,15 @@ type MailService struct {
 }
 
 func NewMailService() *MailService {
-	domain := os.Getenv("DOMAIN")
-	apiKey := os.Getenv("API_KEY")
-	publicApiKey := os.Getenv("PUBLIC_API_KEY")
-	os.Setenv("MG_DOMAIN", domain)
-	os.Setenv("MG_API_KEY", apiKey)
-	os.Setenv("MG_PUBLIC_API_KEY", publicApiKey)
+	if domain, exists := os.LookupEnv("DOMAIN"); exists {
+		_ = os.Setenv("MG_DOMAIN", domain)
+	}
+	if domain, exists := os.LookupEnv("API_KEY"); exists {
+		_ = os.Setenv("MG_API_KEY", domain)
+	}
+	if domain, exists := os.LookupEnv("MG_PUBLIC_API_KEY"); exists {
+		_ = os.Setenv("MG_PUBLIC_API_KEY", domain)
+	}
 
 	mg, err := mailgun.NewMailgunFromEnv()
 
@@ -151,7 +153,7 @@ func (ms *MailService) sendLambdaEmail(msg *Message) error {
 	}
 	buf, err := json.Marshal(msg)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err.Error())
+		log.Printf("[ERROR] [%s] Lambda: %s", ServiceName, err.Error())
 		return nil
 	}
 	svc := lambda.New(GetAWSSession())
@@ -175,7 +177,7 @@ func (ms *MailService) sendEmail(msg *Message) error {
 	if err == nil {
 		return nil
 	}
-	log.Printf("[ERROR] Lambda: %s", err.Error())
+	log.Printf("[ERROR] [%s] Lambda: %s", ServiceName, err.Error())
 
 	message := ms.Service.NewMessage(
 		msg.From,
@@ -198,10 +200,10 @@ func (ms *MailService) sendEmail(msg *Message) error {
 }
 
 func (ms *MailService) AssembleTemplate(msg *Message) error {
-	log.Printf("[INFO] Assembling template \"%s\"", msg.Template)
+	log.Printf("[INFO] [%s] Assembling template \"%s\"", ServiceName, msg.Template)
 	emailTpl, err := ms.templateManager.ImportTemplate(msg.Template)
 	if err != nil {
-		log.Printf("[ERROR] [%s] %s\n", ServiceName, err.Error())
+		log.Printf("[ERROR] [%s] %s", ServiceName, err.Error())
 		return err
 	}
 
