@@ -66,3 +66,8 @@ curl -X POST http://localhost:3411/verify \
         \"ip\": \"127.0.0.1\"
     }"
 ```
+## Upgrading Packages
+Upgrade packages by specifying the package to upgrade.
+```bash
+go get -u github.com/aws/aws-sdk-go
+```
