@@ -55,7 +55,7 @@ func PollSqsMessage() {
 		WaitTimeSeconds:     aws.Int64(20),
 	})
 	if err != nil {
-		log.Printf("[ERROR] [%s] SQS Error: %s", ServiceName, err.Error())
+		log.Printf("[ERROR] [%s] Poll SQS Error: %s", ServiceName, err.Error())
 		time.Sleep(time.Minute)
 		return
 	}
@@ -69,7 +69,7 @@ func PollSqsMessage() {
 func ProcessSQSMessage(msg *sqs.Message) {
 	snsMsg := &sns.PublishInput{}
 	if err := json.Unmarshal(bytes.NewBufferString(*msg.Body).Bytes(), snsMsg); err != nil {
-		log.Printf("[ERROR] [%s] SQS Error: %s", ServiceName, err.Error())
+		log.Printf("[ERROR] [%s] Process SQS Error: %s", ServiceName, err.Error())
 		return
 	}
 	if snsMsg.Message == nil {
@@ -89,6 +89,6 @@ func ProcessSQSMessage(msg *sqs.Message) {
 		ReceiptHandle: msg.ReceiptHandle,
 	})
 	if nil != err {
-		log.Printf("[ERROR] [%s] SQS Error: %s", ServiceName, err.Error())
+		log.Printf("[ERROR] [%s] Delete SQS Error: %s", ServiceName, err.Error())
 	}
 }
