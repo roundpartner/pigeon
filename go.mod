@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go v1.34.6
 	github.com/gorilla/mux v1.7.4
 	github.com/mrichman/godnsbl v1.0.0
-	github.com/pkg/errors v0.9.1
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/roundpartner/go v0.1.0
 	gopkg.in/h2non/gock.v1 v1.0.15
 	gopkg.in/mailgun/mailgun-go.v1 v1.1.1
