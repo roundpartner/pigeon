@@ -54,11 +54,6 @@ func NewMailService() *MailService {
 	}
 
 	mg, err := mailgun.NewMailgunFromEnv()
-
-	url := os.Getenv("MG_URL")
-	if url == "" {
-		mg.SetAPIBase(mailgun.ApiBase)
-	}
 	if err != nil {
 		log.Printf("[INFO] [%s] %s", ServiceName, err.Error())
 		os.Exit(1)
