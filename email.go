@@ -46,11 +46,8 @@ func NewMailService() *MailService {
 	if domain, exists := os.LookupEnv("DOMAIN"); exists {
 		_ = os.Setenv("MG_DOMAIN", domain)
 	}
-	if domain, exists := os.LookupEnv("API_KEY"); exists {
-		_ = os.Setenv("MG_API_KEY", domain)
-	}
-	if domain, exists := os.LookupEnv("MG_PUBLIC_API_KEY"); exists {
-		_ = os.Setenv("MG_PUBLIC_API_KEY", domain)
+	if apikey, exists := os.LookupEnv("API_KEY"); exists {
+		_ = os.Setenv("MG_API_KEY", apikey)
 	}
 
 	mg, err := mailgun.NewMailgunFromEnv()
