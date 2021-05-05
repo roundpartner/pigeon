@@ -16,3 +16,14 @@ func TestPollSqsMessage(t *testing.T) {
 
 	PollSqsMessage()
 }
+
+func TestRetryPollSqsMessage(t *testing.T) {
+	defer gock.Off()
+
+	gock.New("https://sqs.eu-west-2.amazonaws.com").
+		Post("/").
+		Reply(http.StatusOK).
+		BodyString(`{}`)
+
+	RetryPollSqsMessage()
+}

@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sns"
 	"github.com/aws/aws-sdk-go/service/sqs"
+	"gopkg.in/retry.v1"
 	"log"
 	"time"
 )
@@ -33,11 +34,31 @@ func StartSQSSpool() {
 	}
 	for {
 		time.Sleep(time.Minute)
-		PollSqsMessage()
+		RetryPollSqsMessage()
 	}
 }
 
-func PollSqsMessage() {
+func RetryPollSqsMessage() {
+	strategy := retry.LimitTime(30*time.Second,
+		retry.Exponential{
+			Initial: 5 * time.Second,
+			Factor:  1.5,
+		},
+	)
+	for r := retry.Start(strategy, nil); r.Next(); {
+		err := PollSqsMessage()
+		if err == nil {
+			return
+		}
+		if !r.More() {
+			log.Printf("[ERROR] [%s] Poll SQS Error: %s", ServiceName, err.Error())
+		} else {
+			log.Printf("[WARNING] [%s] SQS Error on attempt %d: %s", ServiceName, r.Count(), err.Error())
+		}
+	}
+}
+
+func PollSqsMessage() error {
 	session := GetAWSSession()
 	queue = sqs.New(session)
 	queueName, _ = GetQueueName()
@@ -55,15 +76,15 @@ func PollSqsMessage() {
 		WaitTimeSeconds:     aws.Int64(20),
 	})
 	if err != nil {
-		log.Printf("[ERROR] [%s] Poll SQS Error: %s", ServiceName, err.Error())
-		time.Sleep(time.Minute)
-		return
+		return err
 	}
 
 	for index, msg := range result.Messages {
 		log.Printf("[INFO] [%s] Processing message %d of %d recieved from queue", ServiceName, index+1, len(result.Messages))
 		ProcessSQSMessage(msg)
 	}
+
+	return nil
 }
 
 func ProcessSQSMessage(msg *sqs.Message) {
