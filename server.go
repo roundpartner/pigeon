@@ -58,7 +58,11 @@ func (rs *RestServer) SendEmail(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Printf("[INFO] [%s] Adding email to queue %s", ServiceName, msg.From)
+	if msg.From == "" {
+		log.Printf("[INFO] [%s] Adding email to queue from %s", ServiceName, msg.From)
+	} else {
+		log.Printf("[INFO] [%s] Adding email to queue with reply to %s", ServiceName, msg.ReplyTo)
+	}
 	rs.Mail.QueueEmail(msg)
 	w.WriteHeader(http.StatusNoContent)
 }
